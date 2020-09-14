@@ -46,7 +46,7 @@ code as gaga_merchant_code,
 name as gaga_merchant_name
 from
 dim.dim_Bumblebee_merchant where import_time = '$import_time') gaga_merchant
-on t1.gaga_merchant_code = gaga_merchant.gaga_merchant_code or t1.gaga_merchant_code = gaga_merchant.gaga_merchant_name
+on t1.gaga_merchant_code = gaga_merchant.gaga_merchant_code
 "
 
 clickhouse-client -u$user --multiquery -q"
@@ -56,4 +56,3 @@ drop table dwd.dwd_Bell_imsi_resource_detail
 clickhouse-client -u$user --multiquery -q"
 rename table dwd.dwd_Bell_imsi_resource_detail_tmp to dwd.dwd_Bell_imsi_resource_detail
 "
-

@@ -10,19 +10,16 @@ fi
 
 
 clickhouse-client -u$user --mulitiquery -q"
-
-"
-
-
-create table dwd.dwd_Nobel_orders_detail
+create table dwd.dwd_Nobel_orders_detail_tmp
 Engine=MergeTree
 order by order_id as
 select
 t6.*,
-payment.name as payment_methods_name
+payment.name as payment_method_name
 from
 (select
 t5.*,
+currency.CNY_rate as currency_CNY_rate,
 currency.name as currency_name,
 currency.remark as currency_remark,
 if(t5.order_price/10000/currency.CNY_rate=inf,0,t5.order_price/10000/currency.CNY_rate) as order_CNYamount
@@ -68,14 +65,16 @@ from
   dpo.data_plan_volume_id,
   dpo.data_plan_day_id,
   dpo.qr_iccid,
-  dpo.payment_methods_id,
+  dpo.payment_methods_id as payment_method_id,
   dpo.currency_id,
   dpo.order_status,
   dpo.day_client_resource_id,
   dpo.qr_imsi as imsi,
   dpo.qr_transaction_id as transaction_code,
   dpo.device_id,
-  dpo.user_id
+  dpo.user_id,
+  dpo.effective_time,
+  dpo.invalid_time
 from
 ods.ods_Nobel_data_plan_order dpo
 left join
@@ -127,7 +126,16 @@ LEFT JOIN
     ON currency_name.name = currency_rate.name
 ) AS currency ON t5.currency_id = currency.id) t6
 left join dim.dim_Nobel_payment_methods payment
-on t6.payment_methods_id = payment.id
+on t6.payment_method_id = payment.id
+"
 
 
 
+clickhouse-client -u$user --muitiquery -q"
+drop table dwd.dwd_Nobel_orders_detail
+"
+
+
+clickhouse-client -u$user --multiquery -q"
+rename table dwd.dwd_Nobel_orders_detail_tmp to dwd.dwd_Nobel_orders_detail
+"

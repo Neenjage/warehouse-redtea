@@ -10,44 +10,134 @@ fi
 
 
 clickhouse-client -u$user --multiquery -q"
-create table if not exists dws.dws_order_tmp
+create table dws.dws_order_tmp
 Engine=MergeTree
 order by order_id as
 select
-t4.*,
-dpd.data_plan_name,
-if(payment_method_id = 4,order_CNYamount*6/1000,if(payment_method_id = 9,order_CNYamount*8/1000,order_CNYamount*4/100)) as transation_fee,
-if(agent_id = 1 or agent_id = 14,
-    if(startsWith(imsi,'460'),order_CNYamount*0.3,order_CNYamount*0.18),
-    if(agent_id = 9 and startsWith(imsi,'460'),order_CNYamount*0.15,order_CNYamount*0.1)) as revenue_share,
-(order_CNYamount-transation_fee-revenue_share) as net_amount_without_cost,
-(order_CNYamount-transation_fee-revenue_share-cost) as net_amount
+total2.*,
+cdr.total_usage,
+cdr.cost,
+(total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost) as net_amount
 from
 (select
-t3.*,
-bundle.bundle_id,
-bundle.bundle_name,
-bundle.carrier_id,
-bundle.carrier_name,
-bundle.bundle_group_id,
-bundle.bundle_group_name
+total1.*,
+bundle_detail.bundle_id,
+bundle_detail.bundle_name,
+bundle_detail.carrier_id,
+bundle_detail.carrier_name,
+bundle_detail.bundle_group_id,
+bundle_detail.bundle_group_name
 from
 (select
-  t2.* ,
-  cdr.total_usage,
-  cdr.cost
-from
-(select
+total.*,
+if(transaction.transaction_id = 0,-1,transaction.transaction_id) as transaction_id
+FROM
+(SELECT
+  t1.*,
+  oipr.transaction_code,
+  oipr.bundle_code
+FROM
+(SELECT
+    toString(order_detail.order_id) as order_id,
+    order_detail.order_source as source,
+    toInt8(order_detail.agent_id) as agent_id,
+    order_detail.agent_name,
+    order_detail.data_plan_id,
+    data_plan_detail.data_plan_name,
+    order_detail.imsi,
+    order_detail.order_CNYamount,
+    order_detail.payment_method_id,
+    order_detail.payment_method_name,
+    if(order_detail.payment_method_id = 4,order_detail.order_CNYamount*6/1000,
+        if(order_detail.payment_method_id = 9,order_detail.order_CNYamount*8/1000,
+          order_detail.order_CNYamount*4/100)) as transation_fee,
+    if(order_detail.agent_id = 1 or order_detail.agent_id = 14,
+        if(startsWith(order_detail.imsi,'460'),order_detail.order_CNYamount*0.3,order_detail.order_CNYamount*0.18),
+        if(order_detail.agent_id = 9 and startsWith(order_detail.imsi,'460'),order_detail.order_CNYamount*0.15,
+           order_detail.order_CNYamount*0.1)) as revenue_share,
+    order_detail.currency_id,
+    order_detail.currency_name,
+    order_detail.currency_CNY_rate,
+    toInt32(-1) as user_id,
+    'Einstein' as email,
+    order_detail.device_id,
+    order_detail.agent_name as brand,
+    order_detail.order_status,
+    order_detail.activate_time,
+    order_detail.expiration_time as end_time,
+    order_detail.order_time,
+    order_detail.order_ip as purchased_ip,
+    order_detail.effective_time,
+    order_detail.invalid_time
+FROM dwd.dwd_Einstein_orders_detail order_detail
+left join
+(SELECT
+  data_plan_id,
+  data_plan_name
+FROM
+dwd.dwd_Einstein_data_plan_detail where import_time = '$import_time')  data_plan_detail
+on order_detail.data_plan_id = toString(data_plan_detail.data_plan_id)) t1
+left join dwd.dwd_Einstein_order_imsi_profile_relation oipr on t1.order_id = toString(oipr.order_id)
+union all
+select
 t1.*,
-transaction.transaction_id
-from
+resource_detail.bundle_code
+FROM
 (select
-order_detail.*,
-oipr.transaction_code,
-oipr.bundle_code
-from dwd.dwd_Einstein_orders_detail order_detail
-left join dwd.dwd_Einstein_order_imsi_profile_relation oipr on order_detail.order_id = oipr.order_id ) t1
-left join dwd.dwd_Bumblebee_imsi_transaction_detail transaction on t1.transaction_code = transaction.transaction_code) t2
+  order_detail.order_id,
+  order_detail.source,
+  toInt8(order_detail.agent_id) as agent_id,
+  order_detail.agent_name,
+  toString(order_detail.day_client_resource_id) as data_plan_id,
+  toString(data_plan_detail.data_plan_volume) as data_plan_name,
+  order_detail.imsi,
+  order_detail.order_CNYamount,
+  order_detail.payment_method_id,
+  order_detail.payment_method_name,
+  toFloat64(0) as transation_fee,
+  toFloat64(0) as revenue_share,
+  order_detail.currency_id,
+  order_detail.currency_name,
+  order_detail.currency_CNY_rate,
+  order_detail.user_id,
+  order_detail.email,
+  order_detail.device_id,
+  order_detail.model as brand,
+  order_detail.order_status,
+  order_detail.start_time as activate_time,
+  order_detail.end_time as end_time,
+  order_detail.create_time as order_time,
+  order_detail.ip as purchased_ip,
+  order_detail.effective_time,
+  order_detail.invalid_time,
+  order_detail.transaction_code
+FROM
+dwd.dwd_Nobel_orders_detail order_detail
+left join
+(SELECT
+  day_client_resource_id,
+  data_plan_volume
+FROM
+dwd.dwd_Nobel_data_plan_detail where import_time = '$import_time')  data_plan_detail
+on order_detail.day_client_resource_id = data_plan_detail.day_client_resource_id) t1
+left join
+(select
+transaction_code,
+bundle_code
+from dwd.dwd_Bell_imsi_resource_detail where transaction_code is not null and transaction_code != '') resource_detail
+on t1.transaction_code = resource_detail.transaction_code) total
+left join dwd.dwd_Bumblebee_imsi_transaction_detail transaction on total.transaction_code = transaction.transaction_code) total1
+left join
+(select
+  bundle_code,
+  bundle_id,
+  bundle_name,
+  carrier_id,
+  carrier_name,
+  bundle_group_id,
+  bundle_group_name
+from dwd.dwd_Bumblebee_bundle_detail
+where import_time = '$import_time') bundle_detail on total1.bundle_code = bundle_detail.bundle_code) total2
 left join
 (select
   cdr_raw.transaction_id,
@@ -58,23 +148,7 @@ dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr_raw
 where cdr_raw.transaction_id != -1
 group by
   cdr_raw.transaction_id
-) as cdr on t2.transaction_id = cdr.transaction_id) t3
-left join
-(select
-bundle_id,
-bundle_name,
-carrier_id,
-carrier_name,
-bundle_group_id,
-bundle_group_name
-from dwd.dwd_Bumblebee_bundle_detail
-where import_time = '$import_time') as  bundle on t3.bundle_code = bundle.bundle_code) t4
-left join
-(SELECT
-data_plan_id,
-data_plan_name
-FROM
-dwd.dwd_Einstein_data_plan_detail where import_time = '$import_time') as dpd on t4.data_plan_id = toString(dpd.data_plan_id)
+) as cdr on total2.transaction_id = cdr.transaction_id
 "
 
 clickhouse-client -u$user --multiquery -q"
@@ -93,10 +167,8 @@ alter table dws.dws_order delete where transaction_id = -1
 clickhouse-client -u$user --multiquery -q"
 INSERT INTO TABLE dws.dws_order(
 order_id,
-order_province,
-order_address,
 currency_name,
-order_source,
+source,
 transaction_id,
 bundle_id,
 carrier_id,
@@ -105,12 +177,9 @@ total_usage,
 cost,
 transation_fee,
 revenue_share,
-net_amount_without_cost,
 net_amount)
 select
   -1,
-  'unknown',
-  'unknown',
   'unknown',
   'unknown',
   cdr_raw.transaction_id,
@@ -119,7 +188,6 @@ select
   -1,
   sum(cdr_raw.total_usage) as total_usage,
   sum(cdr_raw.cost) as cost,
-  0,
   0,
   0,
   -sum(cdr_raw.cost)
@@ -131,100 +199,7 @@ group by
 "
 
 
-create table if not exists dws.dws_order_tmp
-Engine=MergeTree
-order by order_id as
-select
-t2.*,
-dpd.data_plan_name,
-if(payment_method_id = 4,order_CNYamount*6/1000,if(payment_method_id = 9,order_CNYamount*8/1000,order_CNYamount*4/100)) as transation_fee,
-if(agent_id = 1 or agent_id = 14,
-    if(startsWith(imsi,'460'),order_CNYamount*0.3,order_CNYamount*0.18),
-    if(agent_id = 9 and startsWith(imsi,'460'),order_CNYamount*0.15,order_CNYamount*0.1)) as revenue_share,
-(order_CNYamount-transation_fee-revenue_share) as net_amount_without_cost,
-(order_CNYamount-transation_fee-revenue_share-cost) as net_amount
-from
 
 
-
-select
-t2.*,
-dpd.data_plan_name
-from
-(select
-t1.*,
-transaction.transaction_id
-from
-(select
-order_detail.*,
-oipr.transaction_code,
-oipr.bundle_code
-from dwd.dwd_Einstein_orders_detail order_detail
-left join dwd.dwd_Einstein_order_imsi_profile_relation oipr on order_detail.order_id = oipr.order_id ) t1
-left join dwd.dwd_Bumblebee_imsi_transaction_detail transaction on t1.transaction_code = transaction.transaction_code) t2
-left join
-(SELECT
-data_plan_id,
-data_plan_name
-FROM
-dwd.dwd_Einstein_data_plan_detail where import_time = '$import_time') as dpd on t2.data_plan_id = toString(dpd.data_plan_id)
-union all
-
-
-select
-order_detail.*,
-resource_detail.bundle_code,
-resource_detail.iccid
-from dwd.dwd_Nobel_orders_detail order_detail
-left join dwd.dwd_Bell_imsi_resource_detail resource_detail
-on order_detail.transaction_code = resource_detail.transaction_code
-
-
-
-
-
-(select
-t3.*,
-bundle.bundle_id,
-bundle.bundle_name,
-bundle.carrier_id,
-bundle.carrier_name,
-bundle.bundle_group_id,
-bundle.bundle_group_name
-from
-
-left join
-(select
-bundle_id,
-bundle_name,
-carrier_id,
-carrier_name,
-bundle_group_id,
-bundle_group_name
-from dwd.dwd_Bumblebee_bundle_detail
-where import_time = '$import_time') as  bundle on t2.bundle_code = bundle.bundle_code) t3
-
-
-
-
-
-
-(select
-  t2.* ,
-  cdr.total_usage,
-  cdr.cost
-from
-
-left join
-(select
-  cdr_raw.transaction_id,
-  sum(cdr_raw.total_usage) as total_usage,
-  sum(cdr_raw.cost) as cost
-from
-dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr_raw
-where cdr_raw.transaction_id != -1
-group by
-  cdr_raw.transaction_id
-) as cdr on t2.transaction_id = cdr.transaction_id) t3
 
 
