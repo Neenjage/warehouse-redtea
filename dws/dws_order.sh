@@ -163,7 +163,7 @@ clickhouse-client -u$user --multiquery -q"
 alter table dws.dws_order delete where transaction_id = -1
 "
 
-#将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配度相关订单，但有流量消耗)
+#将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
 clickhouse-client -u$user --multiquery -q"
 INSERT INTO TABLE dws.dws_order(
 order_id,

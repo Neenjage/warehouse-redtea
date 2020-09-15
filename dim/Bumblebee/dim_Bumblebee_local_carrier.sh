@@ -49,5 +49,5 @@ FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306
 insert into table dim.dim_Bumblebee_local_carrier
 select
 *,
-'2020-09-07'
+'2020-09-15'
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'local_carrier', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg')
