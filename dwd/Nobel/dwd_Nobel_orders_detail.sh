@@ -53,6 +53,8 @@ from
   dpo.order_price as data_plan_order_price,
   topup_order.order_price as topup_order_price,
   (dpo.order_price + topup_order.order_price) as order_price,
+  topup_order.topup_order_count,
+  topup_order.topup_order_count + 1 as total_orders,
   dpo.create_time,
   dpo.last_update_time,
   dpo.email_box as email,
@@ -67,6 +69,7 @@ from
   dpo.qr_iccid,
   dpo.payment_methods_id as payment_method_id,
   dpo.currency_id,
+  dpo.status as pay_status,
   dpo.order_status,
   dpo.day_client_resource_id,
   dpo.qr_imsi as imsi,
@@ -80,7 +83,8 @@ ods.ods_Nobel_data_plan_order dpo
 left join
 (select
   dpo_order_no,
-  sum(order_price) as order_price
+  sum(order_price) as order_price,
+  count(*) as topup_order_count
 from
 ods.ods_Nobel_data_plan_topup_order
 where top_up_status = 'SUCCESS' and invalid_time = '2105-12-31 23:59:59'
