@@ -1,6 +1,6 @@
 #!/bin/bash
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client -u$user --multiquery -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_register_device
 (
     `id` Int32,
@@ -14,7 +14,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client -u$user --multiquery -q"
 INSERT INTO ods.ods_Einstein_register_device (
   id,
   device_id,

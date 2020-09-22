@@ -2,87 +2,137 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-#记录注册时间及最近的登录时间
-clickhouse-client -u$user --multiquery -q"
-CREATE TABLE IF NOT EXISTS dwd.dwd_Einstein_device_detail
-(
-    device_id String,
-    brand Nullable(String),
-    model Nullable(String),
-    os_name Nullable(String),
-    os_version Nullable(String),
-    app_version Nullable(String),
-    agent_id Nullable(Int32),
-    last_login_time DateTime,
-    register_time DateTime
-)
-ENGINE = MergeTree
-PARTITION BY toYYYYMM(register_time)
-ORDER BY device_id
-SETTINGS index_granularity = 8192
-"
+user=default
 
-#clikhouse中string类型为空的时候用''表示
-
-clickhouse-client -u$user --multiquery -q"
-CREATE TABLE dwd.dwd_Einstein_device_detail_tmp
-ENGINE = MergeTree
-PARTITION BY toYYYYMM(register_time)
-ORDER BY device_id AS
+#记录注册时间及最近的登录时间   join右边数据量目前内存还不能完全接入，故采用分批处理。
+clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+create TABLE dwd.dwd_Einstein_device_detail_tmp1
+Engine=MergeTree
+order by device_id as
 SELECT
-    di.device_id,
-    if(b.device_id != '',b.brand,di.brand) as brand,
-    if(b.device_id != '',b.model,di.model) as model,
-    if(b.device_id != '',b.os_name,di.os_name) as os_name,
-    if(b.device_id != '',b.os_version,di.os_version) as os_version,
-    if(b.device_id != '',b.app_version,di.app_version) as app_version,
-    if(b.device_id != '',b.agent_id,di.agent_id) as agent_id,
-    if(b.device_id != '', b.last_login_time, di.last_login_time) AS last_login_time,
-    di.register_time
-FROM dwd.dwd_Einstein_device_detail AS di
-ANY LEFT JOIN
-(
-    SELECT
-        device_id,
-        brand,
-        model,
-        os_name,
-        os_version,
-        app_version,
-        agent_id,
-        last_login_time
-    FROM ods.ods_Einstein_device
-    WHERE toDate(addHours(last_login_time, 8)) = subtractDays(toDate(addHours(now(), 8)), 1)
-) AS b USING (device_id)
+  oed.device_id,
+  oed.brand,
+  oed.model,
+  oed.os_name,
+  oed.os_version,
+  oed.app_version,
+  oed.agent_id,
+  oed.last_login_time,
+  rd.register_time
+FROM
+(select
+  oed.device_id,
+  oed.brand,
+  oed.model,
+  oed.os_name,
+  oed.os_version,
+  oed.app_version,
+  oed.agent_id,
+  oed.last_login_time
+from
+ods.ods_Einstein_device oed) AS oed
+LEFT  JOIN
+(SELECT
+device_id,
+register_time
+FROM
+ods.ods_Einstein_register_device
+where toDate(addHours(register_time,8)) < '2019-01-01') rd
+ON oed.device_id = rd.device_id
 "
 
+clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+create TABLE dwd.dwd_Einstein_device_detail_tmp2
+Engine=MergeTree
+order by device_id as
+SELECT
+  oed.device_id,
+  oed.brand,
+  oed.model,
+  oed.os_name,
+  oed.os_version,
+  oed.app_version,
+  oed.agent_id,
+  oed.last_login_time,
+  if(rd.device_id is null,oed.register_time,rd.register_time) as register_time
+FROM
+(select
+  oed.device_id,
+  oed.brand,
+  oed.model,
+  oed.os_name,
+  oed.os_version,
+  oed.app_version,
+  oed.agent_id,
+  oed.last_login_time,
+  oed.register_time
+from
+dwd.dwd_Einstein_device_detail_tmp1 oed) AS oed
+LEFT  JOIN
+(SELECT
+device_id,
+register_time
+FROM
+ods.ods_Einstein_register_device
+where toDate(addHours(register_time,8)) >= '2019-01-01'
+and toDate(addHours(register_time,8)) < '2020-01-01') rd
+ON oed.device_id = rd.device_id
+"
+
+clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+create TABLE dwd.dwd_Einstein_device_detail_tmp
+Engine=MergeTree
+order by device_id as
+SELECT
+  oed.device_id,
+  oed.brand,
+  oed.model,
+  oed.os_name,
+  oed.os_version,
+  oed.app_version,
+  oed.agent_id,
+  oed.last_login_time,
+  if(rd.device_id is null,oed.register_time,rd.register_time) as register_time
+FROM
+(select
+  oed.device_id,
+  oed.brand,
+  oed.model,
+  oed.os_name,
+  oed.os_version,
+  oed.app_version,
+  oed.agent_id,
+  oed.last_login_time,
+  oed.register_time
+from
+dwd.dwd_Einstein_device_detail_tmp2 oed) AS oed
+LEFT  JOIN
+(SELECT
+device_id,
+register_time
+FROM
+ods.ods_Einstein_register_device
+where toDate(addHours(register_time,8)) >= '2020-01-01'
+and toDate(addHours(register_time,8)) < '2021-01-01') rd
+ON oed.device_id = rd.device_id
+"
 
 clickhouse-client -u$user --multiquery -q"
 DROP TABLE dwd.dwd_Einstein_device_detail
 "
 
 clickhouse-client -u$user --multiquery -q"
-RENAME TABLE dwd.dwd_Einstein_device_detail_tmp TO dwd.dwd_Einstein_device_detail
+DROP TABLE dwd.dwd_Einstein_device_detail_tmp1
 "
 
 clickhouse-client -u$user --multiquery -q"
-INSERT INTO dwd.dwd_Einstein_device_info SELECT
-    oed.device_id,
-    oed.brand,
-    oed.model,
-    oed.os_name,
-    oed.os_version,
-    oed.app_version,
-    oed.agent_id,
-    oed.last_login_time,
-    b.register_time
-FROM ods.ods_Einstein_device AS oed
-INNER JOIN
-(
-    SELECT
-        device_id,
-        register_time
-    FROM ods.ods_Einstein_register_device
-    WHERE toDate(addHours(register_time, 8)) = subtractDays(toDate(addHours(now(), 8)), 1)
-) AS b USING (device_id)
+DROP TABLE dwd.dwd_Einstein_device_detail_tmp2
 "
+
+clickhouse-client -u$user --multiquery -q"
+RENAME TABLE dwd.dwd_Einstein_device_detail_tmp TO dwd.dwd_Einstein_device_detail
+"
+
+
+
+
