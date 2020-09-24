@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client -u$user --multiquery -q"
-create table dwd.dwd_Bethune_orders_detail_tmp
+create table dwd.dwd_Bethune_order_detail_tmp
 Engine=MergeTree
 order by id as
 select
@@ -26,8 +26,10 @@ from
   imei,
   device_id,
   order_no,
+  create_time,
   count,
   amount,
+  type,
   status,
   resource_order_id as Einstein_order_id
 from
@@ -39,11 +41,11 @@ on orders.id = orders_device.order_id
 "
 
 clickhouse-client -u$user --multiquery -q"
-drop table dwd.dwd_Bethune_orders_detail
+drop table dwd.dwd_Bethune_order_detail
 "
 
 clickhouse-client -u$user -multiquery -q"
-rename table dwd.dwd_Bethune_orders_detail_tmp to dwd.dwd_Bethune_orders_detail
+rename table dwd.dwd_Bethune_order_detail_tmp to dwd.dwd_Bethune_order_detail
 "
 
 

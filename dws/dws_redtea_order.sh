@@ -8,16 +8,16 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-
 clickhouse-client -u$user --multiquery -q"
-create table dws.dws_order_tmp
+create table dws.dws_redtea_order_tmp
 Engine=MergeTree
 order by order_id as
 select
 total2.*,
-cdr.total_usage,
-cdr.cost,
-(total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost) as net_amount
+if(cdr.total_usage is null,0,cdr.total_usage) as total_usage,
+if(cdr.cost is null,0,cdr.cost) as cost,
+if((total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost) is null,0,
+   (total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost))as net_amount
 from
 (select
 total1.*,
@@ -152,20 +152,20 @@ group by
 "
 
 clickhouse-client -u$user --multiquery -q"
-drop table dws.dws_order
+drop table dws.dws_redtea_order
 "
 
 clickhouse-client -u$user --multiquery -q"
-rename table dws.dws.dws_order_tmp to dws.dws_order
+rename table dws.dws_redtea_order_tmp to dws.dws_redtea_order
 "
 
 clickhouse-client -u$user --multiquery -q"
-alter table dws.dws_order delete where transaction_id = -1
+alter table dws.dws_redtea_order delete where transaction_id = -1
 "
 
 #将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
 clickhouse-client -u$user --multiquery -q"
-INSERT INTO TABLE dws.dws_order(
+INSERT INTO TABLE dws.dws_redtea_order(
 order_id,
 currency_name,
 source,

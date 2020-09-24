@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client -u$user --multiquery -q"
-create table dws.dws_cdr_tmp3
+create table dws.dws_redtea_cdr_tmp
 Engine=MergeTree
 order by transaction_id as
 select
@@ -71,7 +71,7 @@ bundle_name,
 carrier_id,
 carrier_name
 from dwd.dwd_Bumblebee_bundle_detail
-where import_time = '2020-08-21' ) as bd on t2.bundle_code = bd.bundle_code) t3
+where import_time = '$import_time' ) as bd on t2.bundle_code = bd.bundle_code) t3
 left join
 (select
 tmp1.transaction_code,
@@ -102,7 +102,7 @@ SELECT
   data_plan_id,
   data_plan_name
 FROM
-dwd.dwd_Einstein_data_plan_detail where import_time = '2020-08-25'
+dwd.dwd_Einstein_data_plan_detail where import_time = '$import_time'
 ) dpd on tmp1.data_plan_id = toString(dpd.data_plan_id)
 union all
 select
@@ -123,24 +123,24 @@ left join
   day_client_resource_id,
   data_plan_volume
 from
-dwd.dwd_Nobel_data_plan_detail where import_time = '2020-09-09') dpd on od.day_client_resource_id = dpd.day_client_resource_id) tmp2
+dwd.dwd_Nobel_data_plan_detail where import_time = '$import_time') dpd on od.day_client_resource_id = dpd.day_client_resource_id) tmp2
 on t3.transaction_code = tmp2.transaction_code) t4
 left join
 (
 SELECT
   *
 FROM
-dwd.dwd_Bumblebee_local_carrier_detail where import_time = '2020-09-07') local_carrier
+dwd.dwd_Bumblebee_local_carrier_detail where import_time = '$import_time') local_carrier
 on t4.location_code = local_carrier.location_code and toString(t4.bundle_group_id) = toString(local_carrier.bundle_group_id)
 "
 
 
 clickhouse-client -u$user --ultiquery -q"
-drop table dws.dws_cdr_tmp
+drop table dws.dws_redtea_cdr
 "
 
 clickhouse-client -u$user --ultiquery -q"
-rename table dws.dws_cdr_tmp to dws.dws_cdr
+rename table dws.dws_redtea_cdr_tmp to dws.dws_redtea_cdr
 "
 
 

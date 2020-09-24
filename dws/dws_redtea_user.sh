@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
-CREATE TABLE dws.dws_user_tmp
+CREATE TABLE dws.dws_redtea_user_tmp
 Engine=MergeTree
 order by user_id as
 SELECT
@@ -193,76 +193,12 @@ on user.user_id = order.user_id
 "
 
 clickhouse-client -u$user --multiquery -q"
-drop table dws.dws_user
+drop table dws.dws_redtea_user
 "
 
 clickhouse-client -u$user --multiquery -q"
-rename table dws.dws_user_tmp to dws.dws_user
+rename table dws.dws_redtea_user_tmp to dws.dws_redtea__user
 "
-
-select
-  toString(user.user_id) as user_id,
-  user.source,
-  user.brand,
-  user.model,
-  user.email,
-  user.register_time,
-  user.last_login_time,
-  if(order.total_orders is null,0,order.total_orders) as total_orders,
-  if(order.total_amount is null,0,order.total_amount) as total_amount,
-  if(order.total_cost is null,0,order.total_cost) as total_cost
-from
-(select
-  user_id,
-  'Bethune' as source,
-  brand,
-  model,
-  'unknown' as email,
-  create_time as register_time,
-  login_time as last_login_time
-from
-dwd.dwd_Bethune_user_detail) user
-left join
-(select
-  total.user_id,
-  sum(if(amount = 0,0,1)) as total_orders,
-  sum(total.amount) as total_amount,
-  sum(total.cost) as total_cost
-from
-(select
-  order2.user_id,
-  order2.amount,
-  if(cdr.cost is null,0,cdr.cost) as cost
-from
-(select
-  order1.user_id,
-  order1.amount,
-  relation.transaction_id
-from
-(select
-  order.user_id,
-  order.amount,
-  Einstein_order.order_id
-from
-(select
-  user_id,
-  if(status = 2,0,amount/100) as amount,
-  Einstein_order_id
-from
-dwd.dwd_Bethune_orders_detail
-where status not in (0,3,5)) as order
-left join
-(select
- order_id,
- order_no
-from
-dwd.dwd_Einstein_orders_detail
-where invalid_time = '2105-12-31 23:59:59') as Einstein_order
-on order.Einstein_order_id = Einstein_order.order_no) as order1
-left join dwd.dwd_Einstein_order_imsi_profile_relation relation on order1.order_id = relation.order_id) as order2
-left join dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr on order2.transaction_id = cdr.transaction_id) as total
-group by total.user_id) as order
-on user.user_id = order.user_id
 
 
 
