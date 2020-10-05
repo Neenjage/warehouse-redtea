@@ -8,7 +8,6 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-
 clickhouse-client -u$user --multiquery -q"
 create table dws.dws_Bethune_order_tmp
 Engine=MergeTree
@@ -39,7 +38,7 @@ select
 	user.device_id as user_device,
 	user.brand as user_brand,
 	user.model as user_model,
-	if(toDate(addHours(order.create_time,8)) = toDate(addHours(user.create_time,8)),1,0) as first_order_flag
+	if(toDate(addHours(order.create_time,8)) = toDate(addHours(user.create_time,8)),1,0) as new_user_order_flag
 from
 (select
 	order.id,
@@ -95,4 +94,39 @@ rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order
 "
 
 
+clickhouse-client -u$user --multiquery -q"
+create table dws.dws_Bethune_order_tmp
+Engine=MergeTree
+order by id as
+SELECT
+do.*,
+if(min.user_id is null,0,1) as user_first_order_flag
+FROM
+dws.dws_Bethune_order do
+left join
+(SELECT
+order.user_id,
+min(create_time) as first_create_time
+FROM
+(SELECT
+order_no,
+user_id,
+amount,
+create_time,
+register_time
+FROM dws.dws_Bethune_order dbo
+where dbo.`source` = 'order'
+and dbo.`type` = '2'
+and status not IN ('0','2','3','5')) as order
+GROUP by order.user_id) as min
+on do.user_id = min.user_id and do.create_time = min.first_create_time
+"
+
+clickhouse-client -u$user --multiquery -q"
+drop table dws.dws_Bethune_order
+"
+
+clickhouse-client -u$user --multiquery -q"
+rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order
+"
 

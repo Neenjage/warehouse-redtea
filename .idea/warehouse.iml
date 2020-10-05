@@ -8,9 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/dwd" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/dws" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ods" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cdr" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/dwt" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

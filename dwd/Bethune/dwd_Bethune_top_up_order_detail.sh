@@ -31,6 +31,6 @@ drop table dwd.dwd_Bethune_top_up_order_detail
 "
 
 clickhouse-client -u$user --multiquery -q"
-rename  table dwd.dwd_Bethune_top_up_order_detail_tmp to dwd.dwd_Bethune_top_up_order_detail
+rename table dwd.dwd_Bethune_top_up_order_detail_tmp to dwd.dwd_Bethune_top_up_order_detail
 "
 
