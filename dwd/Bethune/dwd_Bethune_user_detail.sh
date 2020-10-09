@@ -21,7 +21,7 @@ select
   user_device.imei,
   user_device.device_id,
   user_device.model,
-  user_device.brand
+  lower(user_device.brand) as brand
 from
 (select
   id,
