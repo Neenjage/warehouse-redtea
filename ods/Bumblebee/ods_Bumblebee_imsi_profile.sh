@@ -1,35 +1,43 @@
 #!/bin/bash
 
-clickhouse-client -u$1 --multiquery -q"
+source  /home/ops/warehouse-redtea/config/config.sh
+
+import_time=date +%F
+
+if [ -n "$1" ];then
+  import_time=$1
+fi
+
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_profile
 (
-    `imsi_profile_id` Int32,
-    `iccid` Nullable(String),
-    `imsi` Nullable(String),
-    `efki` Nullable(String),
-    `efopc` Nullable(String),
-    `msisdn` Nullable(String),
-    `carrier_id` Nullable(Int32),
-    `where_to_use` Nullable(String),
-    `is_test` Nullable(Int8),
-    `reusable` Nullable(Int8),
-    `remark` Nullable(String),
-    `allocated` Nullable(Int8),
-    `activated` Nullable(Int8),
-    `merchant_id` Nullable(Int32),
-    `last_activated_time` Nullable(DateTime),
-    `imsi_type` Nullable(Int32),
-    `batch_id` Nullable(String),
-    `has_csim` Nullable(Int8),
-    `bundle_group_id` Nullable(Int32),
-    `allocation_code` Nullable(String)
+    imsi_profile_id Int32,
+    iccid Nullable(String),
+    imsi Nullable(String),
+    efki Nullable(String),
+    efopc Nullable(String),
+    msisdn Nullable(String),
+    carrier_id Nullable(Int32),
+    where_to_use Nullable(String),
+    is_test Nullable(Int8),
+    reusable Nullable(Int8),
+    remark Nullable(String),
+    allocated Nullable(Int8),
+    activated Nullable(Int8),
+    merchant_id Nullable(Int32),
+    last_activated_time Nullable(DateTime),
+    imsi_type Nullable(Int32),
+    batch_id Nullable(String),
+    has_csim Nullable(Int8),
+    bundle_group_id Nullable(Int32),
+    allocation_code Nullable(String)
 )
 ENGINE = MergeTree
 ORDER BY imsi_profile_id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO ods.ods_Bumblebee_imsi_profile (
   imsi_profile_id,
   iccid,

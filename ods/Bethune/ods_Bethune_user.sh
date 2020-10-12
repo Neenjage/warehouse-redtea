@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #记录的用户信息包含当前拥有的豆子与砖石
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE if not exists ods.ods_Bethune_user
 (
     id Int32,
@@ -26,8 +26,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Bethune_user
 SELECT
   id,

@@ -1,17 +1,17 @@
 #!/bin/bash
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE ods.ods_Einstein_netless_roaming_iccid_usage
 (
-    `id` Int32,
-    `device_id` Nullable(String),
-    `iccid` Nullable(String),
-    `use_time` DateTime,
-    `type` Nullable(Int32),
-    `consume_time` Nullable(Int32),
-    `mcc` Nullable(String),
-    `count` Nullable(Int32),
-    `upload_time` Nullable(DateTime)
+    id Int32,
+    device_id Nullable(String),
+    iccid Nullable(String),
+    use_time DateTime,
+    type Nullable(Int32),
+    consume_time Nullable(Int32),
+    mcc Nullable(String),
+    count Nullable(Int32),
+    upload_time Nullable(DateTime)
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(use_time)
@@ -19,7 +19,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_netless_roaming_iccid_usage (
   id,
   device_id,

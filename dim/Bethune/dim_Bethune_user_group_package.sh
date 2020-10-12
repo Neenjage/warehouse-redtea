@@ -1,15 +1,15 @@
 #!/bin/bash
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dim.dim_Bethune_user_group_package
 (
-    `id` Int64,
-    `user_group_id` Int32,
-    `package_group_id` Int32,
-    `status` String,
-    `create_time` DateTime,
-    `update_time` DateTime,
-    `import_time` Date DEFAULT toDate(now())
+    id Int64,
+    user_group_id Int32,
+    package_group_id Int32,
+    status String,
+    create_time DateTime,
+    update_time DateTime,
+    import_time Date DEFAULT toDate(now())
 )
 ENGINE = MergeTree
 PARTITION BY import_time
@@ -18,7 +18,7 @@ SETTINGS index_granularity = 8192
 ";
 
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Bethune_user_group_package(
   id,
   user_group_id,

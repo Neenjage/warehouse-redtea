@@ -2,58 +2,58 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
 
-clickhouse-client -u$user --multiquey -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dwd.dwd_Nobel_data_plan_detail
 (
-    `day_client_resource_id` Int32,
-    `data_plan_day_id` Nullable(Int32),
-    `support_client` String,
-    `package_level` Int32,
-    `resource_id` Int32,
-    `valid_day` Int32,
-    `support_cdr` Int8,
-    `day_client_resource_status` String,
-    `update_time` Nullable(DateTime),
-    `create_time` Nullable(DateTime),
-    `price` Nullable(Int32),
-    `original_price` Nullable(Int32),
-    `promotion_id` Int32,
-    `data_plan_volume_id` Int32,
-    `day` Int32,
-    `data_plan_day_status` String,
-    `area_id` Int32,
-    `data_plan_volume` Int32,
-    `data_plan_volume_status` String,
-    `data_plan_volume_network` String,
-    `data_plan_volume_local_operator` String,
-    `currency_id` Int32,
-    `coverage_area` String,
-    `area_name` String,
-    `area_status` String,
-    `continent_id` Int32,
-    `continent_name` String,
-    `currency_name` String,
-    `currency_remark` String,
-    `import_time` Date
+    day_client_resource_id Int32,
+    data_plan_day_id Nullable(Int32),
+    support_client String,
+    package_level Int32,
+    resource_id Int32,
+    valid_day Int32,
+    support_cdr Int8,
+    day_client_resource_status String,
+    update_time Nullable(DateTime),
+    create_time Nullable(DateTime),
+    price Nullable(Int32),
+    original_price Nullable(Int32),
+    promotion_id Int32,
+    data_plan_volume_id Int32,
+    day Int32,
+    data_plan_day_status String,
+    area_id Int32,
+    data_plan_volume Int32,
+    data_plan_volume_status String,
+    data_plan_volume_network String,
+    data_plan_volume_local_operator String,
+    currency_id Int32,
+    coverage_area String,
+    area_name String,
+    area_status String,
+    continent_id Int32,
+    continent_name String,
+    currency_name String,
+    currency_remark String,
+    import_time Date
 )
 ENGINE = MergeTree
 ORDER BY day_client_resource_id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquey -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER table dwd.dwd_Nobel_data_plan_detail delete where import_time = '$import_time'
 "
 
 
-clickhouse-client -u$user --multiquey -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Nobel_data_plan_detail
 select
   dcr.id as day_client_resource_id,

@@ -2,13 +2,13 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password $password --multiquery --multiline  --max_memory_usage 30000000000 -q"
 CREATE TABLE dws.dws_redtea_user_tmp
 Engine=MergeTree
 order by user_id as
@@ -192,11 +192,11 @@ group by total.user_id) as order
 on user.user_id = order.user_id
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dws.dws_redtea_user
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dws.dws_redtea_user_tmp to dws.dws_redtea__user
 "
 

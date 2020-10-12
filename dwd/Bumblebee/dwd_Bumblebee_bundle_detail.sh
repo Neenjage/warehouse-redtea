@@ -2,14 +2,14 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists dwd.dwd_Bumblebee_bundle_detail
 (
   bundle_id Int32,
@@ -34,12 +34,12 @@ SETTINGS index_granularity = 8192
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dwd.dwd_Bumblebee_bundle_detail delete where import_time = '$import_time'
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Bumblebee_bundle_detail
 SELECT
     t2.bundle_id,

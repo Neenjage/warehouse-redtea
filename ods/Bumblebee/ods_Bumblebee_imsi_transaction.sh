@@ -6,40 +6,40 @@ source  /home/ops/warehouse-redtea/config/config.sh
 
 #generate_time 与自增id基本一致的顺序性
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction
 (
-    `imsi_transaction_id` Int32,
-    `imsi` Nullable(String),
-    `bundle_id` Nullable(String),
-    `status` Nullable(String),
-    `generate_time` Nullable(DateTime),
-    `activate_time` Nullable(DateTime),
-    `suspend_time` Nullable(DateTime),
-    `is_limited` Nullable(Int8),
-    `extend_count` Nullable(Int32),
-    `imsi_profile_id` Nullable(Int32),
-    `merchant_id` Nullable(Int32),
-    `is_test` Nullable(Int32),
-    `parent_transaction_id` Nullable(Int32),
-    `order_id` Nullable(String),
-    `code` String,
-    `parent_code` String,
-    `url` Nullable(String),
-    `threshold` Nullable(String),
-    `ac` String,
-    `import_time` Date
+    imsi_transaction_id Int32,
+    imsi Nullable(String),
+    bundle_id Nullable(String),
+    status Nullable(String),
+    generate_time Nullable(DateTime),
+    activate_time Nullable(DateTime),
+    suspend_time Nullable(DateTime),
+    is_limited Nullable(Int8),
+    extend_count Nullable(Int32),
+    imsi_profile_id Nullable(Int32),
+    merchant_id Nullable(Int32),
+    is_test Nullable(Int32),
+    parent_transaction_id Nullable(Int32),
+    order_id Nullable(String),
+    code String,
+    parent_code String,
+    url Nullable(String),
+    threshold Nullable(String),
+    ac String,
+    import_time Date
 )
 ENGINE = MergeTree
 ORDER BY imsi_transaction_id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 ALTER TABLE ods.ods_Bumblebee_imsi_transaction delete where import_time >='$import_time'
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO TABLE ods.ods_Bumblebee_imsi_transaction
 SELECT
     imsi_transaction_id,

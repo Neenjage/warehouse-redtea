@@ -2,41 +2,41 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dwd.dwd_Einstein_data_plan_detail
 (
-    `data_plan_id` Int32,
-    `data_plan_name` Nullable(String),
-    `data_plan_price` Nullable(Int32),
-    `data_plan_status` Nullable(String),
-    `data_lan_update_time` Nullable(DateTime),
-    `data_plan_volume` Nullable(Int32),
-    `data_plan_expiration_days` Nullable(Int32),
-    `location_id` Nullable(Int32),
-    `currency_id` Nullable(Int32),
-    `promotion_id` Nullable(Int32),
-    `data_plan_level` Nullable(Int32),
-    `location_name` Nullable(String),
-    `location_continent` Nullable(String),
-    `location_remark` Nullable(String),
-    `location_status` Nullable(String),
-    `currency_name` String,
-    `currency_remark` Nullable(String),
-    `title` Nullable(String),
-    `status` Nullable(String),
-    `start_time` Nullable(DateTime),
-    `end_time` Nullable(DateTime),
-    `data_plan_group_id` Int32,
-    `data_plan_group_name` String,
-    `provider_id` Nullable(Int32),
-    `provider_name` Nullable(String),
-    `import_time` String
+    data_plan_id Int32,
+    data_plan_name Nullable(String),
+    data_plan_price Nullable(Int32),
+    data_plan_status Nullable(String),
+    data_lan_update_time Nullable(DateTime),
+    data_plan_volume Nullable(Int32),
+    data_plan_expiration_days Nullable(Int32),
+    location_id Nullable(Int32),
+    currency_id Nullable(Int32),
+    promotion_id Nullable(Int32),
+    data_plan_level Nullable(Int32),
+    location_name Nullable(String),
+    location_continent Nullable(String),
+    location_remark Nullable(String),
+    location_status Nullable(String),
+    currency_name String,
+    currency_remark Nullable(String),
+    title Nullable(String),
+    status Nullable(String),
+    start_time Nullable(DateTime),
+    end_time Nullable(DateTime),
+    data_plan_group_id Int32,
+    data_plan_group_name String,
+    provider_id Nullable(Int32),
+    provider_name Nullable(String),
+    import_time String
 )
 ENGINE = MergeTree
 ORDER BY data_plan_id
@@ -44,11 +44,11 @@ SETTINGS index_granularity = 8192
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dwd.dwd_Einstein_data_plan_detail delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Einstein_data_plan_detail
 SELECT
     t5.*,

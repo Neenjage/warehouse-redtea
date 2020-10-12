@@ -2,33 +2,33 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Nobel_continent
 (
-    `id` Int32,
-    `name` String,
-    `logo_url` String,
-    `status` String,
-    `sort_no` Int32,
-    `cross_regional` Int8,
-    `import_time` Date DEFAULT toDate(now())
+    id Int32,
+    name String,
+    logo_url String,
+    status String,
+    sort_no Int32,
+    cross_regional Int8,
+    import_time Date DEFAULT toDate(now())
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER table dim.dim_Nobel_continent delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Nobel_continent
 SELECT
     id,

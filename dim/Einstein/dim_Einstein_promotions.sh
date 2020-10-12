@@ -2,45 +2,45 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dim.dim_Einstein_promotions
 (
-    `id` Int32,
-    `title` Nullable(String),
-    `sub_title` Nullable(String),
-    `url_pic` Nullable(String),
-    `url_html` Nullable(String),
-    `share_image` Nullable(String),
-    `promotion_rule` Nullable(String),
-    `explanation` Nullable(String),
-    `promotion_type` Nullable(String),
-    `status` Nullable(String),
-    `start_time` Nullable(DateTime),
-    `end_time` Nullable(DateTime),
-    `frequency` Nullable(Int32),
-    `strategy_id` Nullable(Int32),
-    `strategy_type` Nullable(String),
-    `share_title` Nullable(String),
-    `share_content` Nullable(String),
-    `share_url` Nullable(String),
-    `import_time` Date
+    id Int32,
+    title Nullable(String),
+    sub_title Nullable(String),
+    url_pic Nullable(String),
+    url_html Nullable(String),
+    share_image Nullable(String),
+    promotion_rule Nullable(String),
+    explanation Nullable(String),
+    promotion_type Nullable(String),
+    status Nullable(String),
+    start_time Nullable(DateTime),
+    end_time Nullable(DateTime),
+    frequency Nullable(Int32),
+    strategy_id Nullable(Int32),
+    strategy_type Nullable(String),
+    share_title Nullable(String),
+    share_content Nullable(String),
+    share_url Nullable(String),
+    import_time Date
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dim.dim_Einstein_promotions delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Einstein_promotions
 SELECT 
     id,

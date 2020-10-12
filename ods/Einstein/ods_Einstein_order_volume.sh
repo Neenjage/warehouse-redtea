@@ -1,7 +1,7 @@
 #!/bin/bash
 
 user=default
-import_time=`date +%F`
+import_time=date +%F
 
 
 if [ -n "$1" ];then
@@ -9,26 +9,26 @@ if [ -n "$1" ];then
 fi
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_volume
 (
-    `id` Int32,
-    `order_id` Nullable(Int32),
-    `volume_usage` Nullable(Int64),
-    `upload_time` Nullable(DateTime),
-    `import_time` Date
+    id Int32,
+    order_id Nullable(Int32),
+    volume_usage Nullable(Int64),
+    upload_time Nullable(DateTime),
+    import_time Date
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 ALTER TABLE ods.ods_Einstein_order_volume DELETE WHERE import_time >= '$import_time'
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_volume
 SELECT
     id,

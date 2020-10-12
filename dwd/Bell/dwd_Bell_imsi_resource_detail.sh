@@ -3,7 +3,7 @@
 source  /home/ops/warehouse-redtea/config/config.sh
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not EXISTS dwd.dwd_Bell_imsi_resource_detail_tmp
 Engine=MergeTree
 order by id as
@@ -49,10 +49,10 @@ dim.dim_Bumblebee_merchant where import_time = '$import_time') gaga_merchant
 on t1.gaga_merchant_code = gaga_merchant.gaga_merchant_code
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dwd.dwd_Bell_imsi_resource_detail
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dwd.dwd_Bell_imsi_resource_detail_tmp to dwd.dwd_Bell_imsi_resource_detail
 "

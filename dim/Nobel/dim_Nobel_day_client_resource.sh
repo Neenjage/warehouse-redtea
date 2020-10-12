@@ -2,42 +2,42 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Nobel_day_client_resource
 (
-    `id` Int32,
-    `day_id` Nullable(Int32),
-    `support_client` String,
-    `package_level` Int32,
-    `resource_id` Int32,
-    `valid_day` Int32,
-    `support_cdr` Int8,
-    `status` String,
-    `update_time` Nullable(DateTime),
-    `create_time` Nullable(DateTime),
-    `description` Nullable(String),
-    `price` Nullable(Int32),
-    `original_price` Nullable(Int32),
-    `promotion_id` Int32,
-    `import_time` Date DEFAULT toDate(now())
+    id Int32,
+    day_id Nullable(Int32),
+    support_client String,
+    package_level Int32,
+    resource_id Int32,
+    valid_day Int32,
+    support_cdr Int8,
+    status String,
+    update_time Nullable(DateTime),
+    create_time Nullable(DateTime),
+    description Nullable(String),
+    price Nullable(Int32),
+    original_price Nullable(Int32),
+    promotion_id Int32,
+    import_time Date DEFAULT toDate(now())
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER TABLE dim.dim_Nobel_day_client_resource delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Nobel_day_client_resource
 SELECT
     id,

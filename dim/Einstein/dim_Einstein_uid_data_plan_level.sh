@@ -3,7 +3,7 @@
 source  /home/ops/warehouse-redtea/config/config.sh
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists dim.dim_Einstein_uid_data_plan_level
 Engine=MergeTree
 order by uid_level as

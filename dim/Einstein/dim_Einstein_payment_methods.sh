@@ -2,25 +2,25 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Einstein_payment_methods
 (
-    `id` Int32,
-    `name` Nullable(String),
-    `description` Nullable(String),
-    `secret_key` Nullable(String),
-    `app_id` Nullable(String),
-    `notify_url` Nullable(String),
-    `refund_notify_url` Nullable(String),
-    `status` Nullable(String),
-    `refund_check` Nullable(Int8),
-    `import_time` Date
+    id Int32,
+    name Nullable(String),
+    description Nullable(String),
+    secret_key Nullable(String),
+    app_id Nullable(String),
+    notify_url Nullable(String),
+    refund_notify_url Nullable(String),
+    status Nullable(String),
+    refund_check Nullable(Int8),
+    import_time Date
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(import_time)
@@ -28,7 +28,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER TABLE dim.dim_Einstein_payment_methods delete where import_time = '$import_time'
 "
 

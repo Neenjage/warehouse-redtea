@@ -2,14 +2,13 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE ods.ods_Nobel_data_plan_topup_order_temp
 ENGINE = MergeTree
 ORDER BY id AS
@@ -54,13 +53,17 @@ ANY LEFT JOIN
 ) AS b USING (id)
 "
 
-clickhouse-client -u$user --multiquery -q"DROP TABLE ods.ods_Nobel_data_plan_topup_order"
+clickhouse-client --user $user --password $password --multiquery --multiline  -q"
+DROP TABLE ods.ods_Nobel_data_plan_topup_order
+"
 
 
-clickhouse-client -u$user --multiquery -q"RENAME TABLE ods.ods_Nobel_data_plan_topup_order_temp TO ods.ods_Nobel_data_plan_topup_order"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
+RENAME TABLE ods.ods_Nobel_data_plan_topup_order_temp TO ods.ods_Nobel_data_plan_topup_order
+"
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Nobel_data_plan_topup_order
 SELECT
       id,

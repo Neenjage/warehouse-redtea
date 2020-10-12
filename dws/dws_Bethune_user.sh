@@ -2,14 +2,14 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dws.dws_Bethune_user_tmp
 ENGINE = MergeTree
 ORDER BY user_id AS
@@ -47,7 +47,10 @@ LEFT JOIN
 ) AS topup_order ON t1.user_id = topup_order.user_id
 "
 
-clickhouse-client -u$user --multiquery -q"drop table dws.dws_Bethune_user"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
+drop table dws.dws_Bethune_user"
 
-clickhouse-client -u$user --multiquery -q"rename table dws.dws_Bethune_user_tmp to dws.dws_Bethune_user"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
+rename table dws.dws_Bethune_user_tmp to dws.dws_Bethune_user
+"
 

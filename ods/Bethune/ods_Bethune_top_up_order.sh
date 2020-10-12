@@ -1,6 +1,6 @@
 #!/bin/bash
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table ods.ods_Bethune_top_up_order_tmp
 Engine=MergeTree
 order by id as
@@ -10,11 +10,11 @@ FROM mysql('db-cnbj-prod.c34nqvzohzfw.rds.cn-north-1.amazonaws.com.cn:3306', 'Be
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table ods.ods_Bethune_top_up_order
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table ods.ods_Bethune_top_up_order_tmp to ods.ods_Bethune_top_up_order
 "

@@ -2,41 +2,41 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dwd.dwd_Bumblebee_local_carrier_detail
 (
-    `local_carrier_id` Int32,
-    `location_id` Nullable(Int32),
-    `location_code` Nullable(String),
-    `carrier_id` Nullable(Int32),
-    `carrier_name` Nullable(String),
-    `local_carrier_info_id` Nullable(Int32),
-    `local_carrier_name` Nullable(String),
-    `location_name` Nullable(String),
-    `bundle_group_id` Int32,
-    `bundle_group_name` String,
-    `tadig` Nullable(String),
-    `plmn` Nullable(String),
-    `mnc` Nullable(String),
-    `mcc` Nullable(String)
+    local_carrier_id Int32,
+    location_id Nullable(Int32),
+    location_code Nullable(String),
+    carrier_id Nullable(Int32),
+    carrier_name Nullable(String),
+    local_carrier_info_id Nullable(Int32),
+    local_carrier_name Nullable(String),
+    location_name Nullable(String),
+    bundle_group_id Int32,
+    bundle_group_name String,
+    tadig Nullable(String),
+    plmn Nullable(String),
+    mnc Nullable(String),
+    mcc Nullable(String)
 )
 ENGINE = MergeTree
 ORDER BY local_carrier_id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dwd.dwd_Bumblebee_local_carrier_detail delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Bumblebee_local_carrier_detail
 SELECT
     local_carrier.*,

@@ -3,15 +3,15 @@
 source  /home/ops/warehouse-redtea/config/config.sh
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_ipaddress
 (
-    `id` Int32,
-    `ip` String,
-    `order_no` String,
-    `province` String,
-    `address` String,
-    `create_time` DateTime
+    id Int32,
+    ip String,
+    order_no String,
+    province String,
+    address String,
+    create_time DateTime
 )
 ENGINE = MergeTree
 ORDER BY id
@@ -19,7 +19,7 @@ SETTINGS index_granularity = 8192
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO  table ods.ods_Einstein_order_ipaddress
 select
     id,

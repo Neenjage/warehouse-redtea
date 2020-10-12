@@ -4,7 +4,7 @@ source  /home/ops/warehouse-redtea/config/config.sh
 
 
 #一个transaction_id对应多个order_id说明该订单为免费订单,将所有订单聚合为-1
-clickhouse-client -u$user  --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists dwd.dwd_Einstein_order_imsi_profile_relation_tmp
 Engine=MergeTree
 order by order_id as
@@ -34,11 +34,11 @@ left join ods.ods_Bumblebee_imsi_transaction it on oipr.transaction_id = it.code
 left join dim.dim_Bumblebee_bundle b on t1.bundle_code = b.code
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dwd.dwd_Einstein_order_imsi_profile_relation
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dwd.dwd_Einstein_order_imsi_profile_relation_tmp to dwd.dwd_Einstein_order_imsi_profile_relation
 "
 

@@ -1,4 +1,8 @@
-clickhouse-client  -u$1 --multiquery -q"
+#!/bin/bash
+
+
+
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bethune_user_rel_group
 ENGINE = MergeTree
 ORDER BY id AS
@@ -7,7 +11,7 @@ FROM mysql('db-cnbj-prod.c34nqvzohzfw.rds.cn-north-1.amazonaws.com.cn:3306', 'Be
  "
 
 
- clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE ods.ods_Bethune_user_rel_group_temp
 ENGINE = MergeTree
 ORDER BY id AS
@@ -36,16 +40,16 @@ ANY LEFT JOIN
 ) AS b USING (id)
 ";
 
-clickhouse-client  -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP table ods.ods_Bethune_user_rel_group;
 "
 
-clickhouse-client  -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 RENAME table ods.ods_Bethune_user_rel_group_temp to ods.ods_Bethune_user_rel_group;
 "
 
 
-clickhouse-client  -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Bethune_user_rel_group(
     id,
     group_id,

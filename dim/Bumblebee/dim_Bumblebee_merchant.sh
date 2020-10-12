@@ -2,36 +2,36 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%Y-%m-%d`
+import_time=date +%Y-%m-%d
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_merchant
 (
-    `id` Int32,
-    `code` Nullable(String),
-    `name` Nullable(String),
-    `status` Nullable(String),
-    `access_key` Nullable(String),
-    `secret_key` Nullable(String),
-    `channel_id` Nullable(Int32),
-    `group_code` String,
-    `import_time` Date
+    id Int32,
+    code Nullable(String),
+    name Nullable(String),
+    status Nullable(String),
+    access_key Nullable(String),
+    secret_key Nullable(String),
+    channel_id Nullable(Int32),
+    group_code String,
+    import_time Date
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER table dim.dim_Bumblebee_merchant delete where import_time = '$import_time'
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Bumblebee_merchant
 SELECT
     id,

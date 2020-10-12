@@ -1,13 +1,13 @@
 #!/bin/bash
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_netless_roaming_imsi_usage
 (
-    `id` Int32,
-    `device_id` Nullable(String),
-    `imsi` Nullable(String),
-    `use_time` DateTime,
-    `upload_time` Nullable(DateTime)
+    id Int32,
+    device_id Nullable(String),
+    imsi Nullable(String),
+    use_time DateTime,
+    upload_time Nullable(DateTime)
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(use_time)
@@ -15,7 +15,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_netless_roaming_imsi_usage (
   id,
   device_id,

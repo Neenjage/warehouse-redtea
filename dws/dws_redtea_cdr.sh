@@ -2,13 +2,13 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dws.dws_redtea_cdr_tmp
 Engine=MergeTree
 order by transaction_id as
@@ -135,16 +135,13 @@ on t4.location_code = local_carrier.location_code and toString(t4.bundle_group_i
 "
 
 
-clickhouse-client -u$user --ultiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dws.dws_redtea_cdr
 "
 
-clickhouse-client -u$user --ultiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dws.dws_redtea_cdr_tmp to dws.dws_redtea_cdr
 "
-
-
-
 
 
 

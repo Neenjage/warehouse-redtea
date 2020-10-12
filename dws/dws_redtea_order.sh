@@ -2,13 +2,13 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dws.dws_redtea_order_tmp
 Engine=MergeTree
 order by order_id as
@@ -151,20 +151,20 @@ group by
 ) as cdr on total2.transaction_id = cdr.transaction_id
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dws.dws_redtea_order
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dws.dws_redtea_order_tmp to dws.dws_redtea_order
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dws.dws_redtea_order delete where transaction_id = -1
 "
 
 #将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dws.dws_redtea_order(
 order_id,
 currency_name,

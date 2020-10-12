@@ -2,20 +2,20 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Einstein_currency
 (
-    `id` Int32,
-    `name` String,
-    `symbol` Nullable(String),
-    `remark` Nullable(String),
-    `import_time` Date
+    id Int32,
+    name String,
+    symbol Nullable(String),
+    remark Nullable(String),
+    import_time Date
 )
 ENGINE = MergeTree
 ORDER BY id
@@ -24,12 +24,12 @@ SETTINGS index_granularity = 8192
 
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dim.dim_Einstein_currency delete where import_time = '$import_time'
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Einstein_currency
 SELECT
   id,

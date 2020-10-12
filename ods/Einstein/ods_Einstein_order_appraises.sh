@@ -2,24 +2,24 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_appraises
 (
-    `id` Int32,
-    `device_id` Nullable(String),
-    `order_id` Nullable(Int32),
-    `data_plan_id` Nullable(Int32),
-    `purchase_score` Nullable(Int32),
-    `network_stability_score` Nullable(Int32),
-    `internet_speed_score` Nullable(Int32),
-    `update_time` Nullable(DateTime)
+    id Int32,
+    device_id Nullable(String),
+    order_id Nullable(Int32),
+    data_plan_id Nullable(Int32),
+    purchase_score Nullable(Int32),
+    network_stability_score Nullable(Int32),
+    internet_speed_score Nullable(Int32),
+    update_time Nullable(DateTime)
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_appraises
 SELECT
     id,

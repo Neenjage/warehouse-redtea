@@ -2,13 +2,13 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dws.dws_Bethune_order_tmp
 Engine=MergeTree
 order by id as
@@ -85,16 +85,16 @@ on order.user_id = user.user_id
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dws.dws_Bethune_order
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dws.dws_Bethune_order_tmp
 Engine=MergeTree
 order by id as
@@ -115,18 +115,18 @@ amount,
 create_time,
 register_time
 FROM dws.dws_Bethune_order dbo
-where dbo.`source` = 'order'
-and dbo.`type` = '2'
+where dbo.source = 'order'
+and dbo.type = '2'
 and status not IN ('0','2','3','5')) as order
 GROUP by order.user_id) as min
 on do.user_id = min.user_id and do.create_time = min.first_create_time
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dws.dws_Bethune_order
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order
 "
 

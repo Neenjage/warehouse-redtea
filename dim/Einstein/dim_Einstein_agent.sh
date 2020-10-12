@@ -2,21 +2,21 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Einstein_agent
 (
-    `id` Int32,
-    `name` Nullable(String),
-    `remark` Nullable(String),
-    `status` Nullable(String),
-    `auto_refund` Nullable(Int8),
-    `import_time` Date
+    id Int32,
+    name Nullable(String),
+    remark Nullable(String),
+    status Nullable(String),
+    auto_refund Nullable(Int8),
+    import_time Date
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(import_time)
@@ -24,12 +24,12 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER TABLE ods_Einstein.agent DELETE WHERE import_time = '$import_time'
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Einstein_agent
 SELECT
     id,

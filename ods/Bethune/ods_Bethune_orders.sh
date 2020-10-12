@@ -54,7 +54,7 @@ clickhouse-client  -u$1 --multiquery -q"
 RENAME table ods.ods_Bethune_orders_temp to ods.ods_Bethune_orders;
 "
 
-clickhouse-client  -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Bethune_orders
 SELECT
     id,

@@ -2,17 +2,17 @@
 
 source  /home/ops/warehouse-redtea/config/config.bash
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 CREATE TABLE ods.ods_Einstein_order_imsi_profile_relation
 (
-    `id` Int32,
-    `order_id` Int32,
-    `iccid` Nullable(String),
-    `imsi` Nullable(String),
-    `transaction_id` Nullable(String),
-    `bundle_id` Nullable(String),
-    `status` Nullable(String),
-    `reused` Nullable(Int8)
+    id Int32,
+    order_id Int32,
+    iccid Nullable(String),
+    imsi Nullable(String),
+    transaction_id Nullable(String),
+    bundle_id Nullable(String),
+    status Nullable(String),
+    reused Nullable(Int8)
 )
 ENGINE = MergeTree
 ORDER BY id
@@ -20,7 +20,7 @@ SETTINGS index_granularity = 8192
 "
 
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_imsi_profile_relation SELECT
     id,
     order_id,

@@ -1,12 +1,14 @@
 #!/bin/bash
 
-clickhouse-client -u$user --multiquery -q"
+source  /home/ops/warehouse-redtea/config/config.sh
+
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_register_device
 (
-    `id` Int32,
-    `device_id` Nullable(String),
-    `register_time` Nullable(DateTime),
-    `import_time` Date
+    id Int32,
+    device_id Nullable(String),
+    register_time Nullable(DateTime),
+    import_time Date
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(import_time)
@@ -14,7 +16,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_register_device (
   id,
   device_id,

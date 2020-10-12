@@ -2,38 +2,38 @@
 
 source  /home/ops/warehouse-redtea/config/config.sh
 
-import_time=`date +%F`
+import_time=date +%F
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dim.dim_Nobel_area
 (
-    `id` Int32,
-    `name` String,
-    `logo_url` String,
-    `status` String,
-    `sort_no` Int32,
-    `continent_id` Int32,
-    `top` Int8,
-    `background_image_url` String,
-    `iphone_logo_url` String,
-    `pixel_logo_url` String,
-    `timezone_fix` Int32,
-    `import_time` Date DEFAULT toDate(now())
+    id Int32,
+    name String,
+    logo_url String,
+    status String,
+    sort_no Int32,
+    continent_id Int32,
+    top Int8,
+    background_image_url String,
+    iphone_logo_url String,
+    pixel_logo_url String,
+    timezone_fix Int32,
+    import_time Date DEFAULT toDate(now())
 )
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER table dim.dim_Nobel_area delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Nobel_area
 SELECT
     id,

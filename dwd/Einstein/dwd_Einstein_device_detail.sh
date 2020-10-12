@@ -5,7 +5,7 @@ source  /home/ops/warehouse-redtea/config/config.sh
 user=default
 
 #记录注册时间及最近的登录时间   join右边数据量目前内存还不能完全接入，故采用分批处理。
-clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
 create TABLE dwd.dwd_Einstein_device_detail_tmp1
 Engine=MergeTree
 order by device_id as
@@ -41,7 +41,7 @@ where toDate(addHours(register_time,8)) < '2019-01-01') rd
 ON oed.device_id = rd.device_id
 "
 
-clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
 create TABLE dwd.dwd_Einstein_device_detail_tmp2
 Engine=MergeTree
 order by device_id as
@@ -79,7 +79,7 @@ and toDate(addHours(register_time,8)) < '2020-01-01') rd
 ON oed.device_id = rd.device_id
 "
 
-clickhouse-client -u$user --multiquery --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
 create TABLE dwd.dwd_Einstein_device_detail_tmp
 Engine=MergeTree
 order by device_id as
@@ -117,19 +117,19 @@ and toDate(addHours(register_time,8)) < '2021-01-01') rd
 ON oed.device_id = rd.device_id
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP TABLE dwd.dwd_Einstein_device_detail
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP TABLE dwd.dwd_Einstein_device_detail_tmp1
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP TABLE dwd.dwd_Einstein_device_detail_tmp2
 "
 
-clickhouse-client -u$user --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 RENAME TABLE dwd.dwd_Einstein_device_detail_tmp TO dwd.dwd_Einstein_device_detail
 "
 
