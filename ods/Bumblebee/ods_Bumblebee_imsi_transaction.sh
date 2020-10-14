@@ -1,12 +1,9 @@
 #!/bin/bash
 
-
-source  /home/ops/warehouse-redtea/config/config.sh
-
+source /home/ops/warehouse-redtea/config/config.sh
 
 #generate_time 与自增id基本一致的顺序性
-
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction
 (
     imsi_transaction_id Int32,
@@ -35,11 +32,11 @@ ORDER BY imsi_transaction_id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER TABLE ods.ods_Bumblebee_imsi_transaction delete where import_time >='$import_time'
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE ods.ods_Bumblebee_imsi_transaction
 SELECT
     imsi_transaction_id,

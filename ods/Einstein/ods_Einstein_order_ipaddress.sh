@@ -1,9 +1,8 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_ipaddress
 (
     id Int32,
@@ -18,8 +17,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO  table ods.ods_Einstein_order_ipaddress
 select
     id,

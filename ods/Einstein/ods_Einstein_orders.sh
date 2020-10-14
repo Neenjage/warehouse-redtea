@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 # 将被更改的老数据设置为过期数据,目的保存老数据，拉链表形式(有新增，有更改)
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE ods.ods_Einstein_orders_temp
 ENGINE = MergeTree
 ORDER BY id AS
@@ -57,16 +57,16 @@ ANY LEFT JOIN
 ) AS b USING (id);
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP TABLE ods.ods_Einstein_orders;
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 RENAME TABLE ods.ods_Einstein_orders_temp TO ods.ods_Einstein_orders;
 "
 
 # 查询历史数据 采用 "invalid小于参数时间,并且update_time 小于参数时间"  "或者invalid_time = '2105-12-31 23:59:59' 并且update_time 小于参数时间"
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_orders
 SELECT
     id,

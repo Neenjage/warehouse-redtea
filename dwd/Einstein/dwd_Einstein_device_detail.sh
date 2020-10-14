@@ -1,8 +1,6 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
-
-user=default
+source /home/ops/warehouse-redtea/config/config.sh
 
 #记录注册时间及最近的登录时间   join右边数据量目前内存还不能完全接入，故采用分批处理。
 clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"

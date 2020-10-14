@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ops/warehouse-redtea/config/config.sh
+
 #用户的豆子记录日志
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bethune_points_record

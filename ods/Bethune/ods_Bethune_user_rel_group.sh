@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bethune_user_rel_group

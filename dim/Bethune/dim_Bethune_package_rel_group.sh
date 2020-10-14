@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ops/warehouse-redtea/config/config.sh
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dim.dim_Bethune_package_rel_group
 (
@@ -17,7 +19,6 @@ PARTITION BY import_time
 ORDER BY id
 SETTINGS index_granularity = 8192
 ";
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Bethune_package_rel_group(

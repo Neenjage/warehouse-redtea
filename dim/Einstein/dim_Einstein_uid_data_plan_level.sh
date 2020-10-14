@@ -1,7 +1,6 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
-
+source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists dim.dim_Einstein_uid_data_plan_level

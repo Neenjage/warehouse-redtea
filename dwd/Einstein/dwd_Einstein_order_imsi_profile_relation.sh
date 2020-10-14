@@ -1,7 +1,6 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
-
+source /home/ops/warehouse-redtea/config/config.sh
 
 #一个transaction_id对应多个order_id说明该订单为免费订单,将所有订单聚合为-1
 clickhouse-client --user $user --password $password --multiquery --multiline -q"

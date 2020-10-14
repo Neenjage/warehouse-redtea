@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user=$1
+source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dwd.dwd_Nobel_user_login_record
@@ -14,6 +14,7 @@ ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Nobel_user_login_record
 SELECT

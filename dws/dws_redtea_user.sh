@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
@@ -17,6 +17,8 @@ SELECT
     user.source,
     user.model as brand,
     user.model,
+    'unknown' as agent_name,
+    'unknown' as app_version,
     user.email,
     user.register_time,
     user.last_login_time,
@@ -84,6 +86,24 @@ select
   'Einstein' as source,
   device.brand,
   device.model,
+  multiIf
+  (
+    device.agent_id = 1,'Vivo',
+    device.agent_id=2,'Smartisan',
+    device.agent_id=3,'LeTV',
+    device.agent_id=4,'ZUK',
+    device.agent_id=5,if(brand='SUGAR' or brand='Hisense' or brand='Nokia' or brand='SMARTISAN' ,brand,'Redtea'),
+    device.agent_id=6,'Nubia',
+    device.agent_id=7,'Infinix',
+    device.agent_id=9,'OPPO',
+    device.agent_id=10,'ZTE MIFI',
+    device.agent_id=11,'One-plus',
+    device.agent_id=12,'moto',
+    device.agent_id=13,'Lenovo-domestic',
+    device.agent_id=14,'Vivo_aboard',
+    '其它'
+  ) as agent_name,
+  device.app_version,
   'unknown' as email,
   device.register_time,
   device.last_login_time,
@@ -94,10 +114,10 @@ from
 dwd.dwd_Einstein_device_detail device
 left join
 (select
-total.device_id,
-count(device_id) as order_number,
-sum(if(total.order_CNYamount is null,0,total.order_CNYamount)) as toal_amount,
-sum(if(total.cost is null,0,total.cost)) as total_cost
+  total.device_id,
+  count(device_id) as order_number,
+  sum(if(total.order_CNYamount is null,0,total.order_CNYamount)) as toal_amount,
+  sum(if(total.cost is null,0,total.cost)) as total_cost
 from
 (select
   order_transcation.device_id,
@@ -132,6 +152,8 @@ select
   user.source,
   user.brand,
   user.model,
+  'unknown' as agent_name,
+  'unknown' as app_version,
   user.email,
   user.register_time,
   user.last_login_time,
@@ -176,7 +198,7 @@ from
   if(status = 2,0,amount/100) as amount,
   Einstein_order_id
 from
-dwd.dwd_Bethune_orders_detail
+dwd.dwd_Bethune_order_detail
 where status not in (0,3,5)) as order
 left join
 (select
@@ -197,7 +219,7 @@ drop table dws.dws_redtea_user
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_redtea_user_tmp to dws.dws_redtea__user
+rename table dws.dws_redtea_user_tmp to dws.dws_redtea_user
 "
 
 

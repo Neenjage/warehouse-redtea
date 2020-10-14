@@ -2,8 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-
-#每天来的数据需要具有延迟性，所有需要重新group by计算(import_time在此表示该话单的开始时间属于当天)。
+#每天来的数据具有延迟性，所有需要重新group by计算(import_time在此表示该话单的开始时间属于当天)。
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE dwd.dwd_Bumblebee_imsi_transaction_cdr_raw_tmp
 ENGINE = MergeTree

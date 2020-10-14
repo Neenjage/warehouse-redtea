@@ -1,13 +1,12 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
 fi
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dwd.dwd_Nobel_orders_detail_tmp
@@ -133,12 +132,9 @@ left join dim.dim_Nobel_payment_methods payment
 on t6.payment_method_id = payment.id
 "
 
-
-
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dwd.dwd_Nobel_orders_detail
 "
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dwd.dwd_Nobel_orders_detail_tmp to dwd.dwd_Nobel_orders_detail

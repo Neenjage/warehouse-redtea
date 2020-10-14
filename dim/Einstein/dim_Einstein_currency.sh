@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
@@ -22,12 +22,9 @@ ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-
-
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dim.dim_Einstein_currency delete where import_time = '$import_time'
 "
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Einstein_currency

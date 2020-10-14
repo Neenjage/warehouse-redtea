@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ops/warehouse-redtea/config/config.sh
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE ods.ods_Einstein_unified_identification_temp
 ENGINE = MergeTree

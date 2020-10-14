@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user=$1
+source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dwd.dwd_Nobel_topup_package
@@ -30,7 +30,6 @@ Engine=MergeTree
 order by id
 SETTINGS index_granularity = 8192
 "
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists dwd.dwd_Nobel_topup_package_tmp

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ops/warehouse-redtea/config/config.sh
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bethune_data_plan
 (

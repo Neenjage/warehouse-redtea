@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user=$1
+source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dwd.dwd_Nobel_users_detail

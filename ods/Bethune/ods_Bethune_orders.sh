@@ -1,6 +1,8 @@
 #!/bin/bash
 
-clickhouse-client  -u$1 --multiquery -q"
+source /home/ops/warehouse-redtea/config/config.sh
+
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bethune_orders
 ENGINE = MergeTree
 ORDER BY id AS
@@ -8,8 +10,9 @@ SELECT *
 FROM mysql('db-cnbj-prod.c34nqvzohzfw.rds.cn-north-1.amazonaws.com.cn:3306', 'Bethune', 'orders', 'he.jin', 'MUtxodhUx9yD507UDHz2ebD3HbKmHLrXm')
  "
 
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
+DROP TABLE IF EXISTS ods.ods_Bethune_orders_temp;
 
-clickhouse-client -u$1 --multiquery -q"
 CREATE TABLE ods.ods_Bethune_orders_temp
 ENGINE = MergeTree
 ORDER BY id AS
@@ -46,11 +49,11 @@ ANY LEFT JOIN
 ) AS b USING (id)
 "
 
-clickhouse-client  -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP table ods.ods_Bethune_orders;
 "
 
-clickhouse-client  -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 RENAME table ods.ods_Bethune_orders_temp to ods.ods_Bethune_orders;
 "
 

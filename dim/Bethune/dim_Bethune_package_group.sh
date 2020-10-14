@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ops/warehouse-redtea/config/config.sh
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bethune_package_group (
     id Int32,
@@ -11,7 +13,6 @@ CREATE TABLE IF NOT EXISTS dim.dim_Bethune_package_group (
     import_time Date DEFAULT toDate(now())
 ) ENGINE = MergeTree partition by import_time ORDER BY id SETTINGS index_granularity = 8192
 ";
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Bethune_package_group (

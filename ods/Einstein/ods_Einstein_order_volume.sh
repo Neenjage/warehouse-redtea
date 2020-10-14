@@ -1,15 +1,12 @@
 #!/bin/bash
 
-user=default
-import_time=date +%F
-
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_volume
 (
     id Int32,
@@ -23,12 +20,12 @@ ORDER BY id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER TABLE ods.ods_Einstein_order_volume DELETE WHERE import_time >= '$import_time'
 "
 
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_volume
 SELECT
     id,

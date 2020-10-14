@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
 #取每天最新的数据
 clickhouse-client --user $user --password $password --multiquery --multiline -q"

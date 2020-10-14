@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ops/warehouse-redtea/config/config.sh
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists dwd.dwd_Nobel_user_device(
     id Int32,
@@ -19,7 +21,6 @@ ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192
 "
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dwd.dwd_Nobel_user_device

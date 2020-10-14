@@ -1,14 +1,14 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_profile
 (
     imsi_profile_id Int32,
@@ -37,7 +37,7 @@ ORDER BY imsi_profile_id
 SETTINGS index_granularity = 8192
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Bumblebee_imsi_profile (
   imsi_profile_id,
   iccid,

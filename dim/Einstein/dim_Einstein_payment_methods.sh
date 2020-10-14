@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
@@ -32,7 +32,7 @@ clickhouse-client --user $user --password $password --multiquery --multiline -q"
 ALTER TABLE dim.dim_Einstein_payment_methods delete where import_time = '$import_time'
 "
 
-clickhouse-client -u$1 --multiquery -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Einstein_payment_methods
 SELECT
     id,

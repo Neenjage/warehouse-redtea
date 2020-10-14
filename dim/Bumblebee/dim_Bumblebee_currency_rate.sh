@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%Y-%m-%d
+import_time=`date +%Y-%m-%d`
 
 if [ -n "$1" ];then
   import_time=$1
@@ -22,4 +22,4 @@ SETTINGS index_granularity = 8192
 "
 
 #获取数据从api接口中
-python3.7 /home/ec2-user/dim_Bumblebee_currency_rate.py $import_time
+python3.7 /home/ops/warehouse-redtea/dim/dim_Bumblebee_currency_rate.py $import_time

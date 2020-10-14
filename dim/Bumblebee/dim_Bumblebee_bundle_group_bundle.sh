@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%Y-%m-%d
+import_time=`date +%Y-%m-%d`
 
 if [ -n "$1" ];then
   import_time=$1

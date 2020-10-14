@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
@@ -42,7 +42,6 @@ ENGINE = MergeTree
 ORDER BY data_plan_id
 SETTINGS index_granularity = 8192
 "
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 alter table dwd.dwd_Einstein_data_plan_detail delete where import_time = '$import_time'

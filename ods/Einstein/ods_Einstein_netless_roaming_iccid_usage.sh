@@ -1,6 +1,8 @@
 #!/bin/bash
 
-clickhouse-client --user $user --multiquery --multiline -q"
+source /home/ops/warehouse-redtea/config/config.sh
+
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE ods.ods_Einstein_netless_roaming_iccid_usage
 (
     id Int32,
@@ -19,7 +21,7 @@ ORDER BY id
 SETTINGS index_granularity = 8192;
 "
 
-clickhouse-client --user $user --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_netless_roaming_iccid_usage (
   id,
   device_id,

@@ -1,6 +1,6 @@
-source  /home/ops/warehouse-redtea/config/config.sh
+source /home/ops/warehouse-redtea/config/config.sh
 
-import_time=date +%F
+import_time=`date +%F`
 
 if [ -n "$1" ];then
   import_time=$1
@@ -43,7 +43,6 @@ left join
 from ods.ods_Bethune_user_device
 group by user_id) user_device on user.id = user_device.user_id
 "
-
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table dwd.dwd_Bethune_user_detail
