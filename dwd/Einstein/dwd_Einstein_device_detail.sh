@@ -15,6 +15,7 @@ SELECT
   oed.os_version,
   oed.app_version,
   oed.agent_id,
+  oed.residence,
   oed.last_login_time,
   rd.register_time
 FROM
@@ -26,6 +27,7 @@ FROM
   oed.os_version,
   oed.app_version,
   oed.agent_id,
+  oed.residence,
   oed.last_login_time
 from
 ods.ods_Einstein_device oed) AS oed
@@ -51,6 +53,7 @@ SELECT
   oed.os_version,
   oed.app_version,
   oed.agent_id,
+  oed.residence,
   oed.last_login_time,
   if(rd.device_id is null,oed.register_time,rd.register_time) as register_time
 FROM
@@ -62,6 +65,7 @@ FROM
   oed.os_version,
   oed.app_version,
   oed.agent_id,
+  oed.residence,
   oed.last_login_time,
   oed.register_time
 from
@@ -89,6 +93,7 @@ SELECT
   oed.os_version,
   oed.app_version,
   oed.agent_id,
+  oed.residence,
   oed.last_login_time,
   if(rd.device_id is null,oed.register_time,rd.register_time) as register_time
 FROM
@@ -100,6 +105,7 @@ FROM
   oed.os_version,
   oed.app_version,
   oed.agent_id,
+  oed.residence,
   oed.last_login_time,
   oed.register_time
 from

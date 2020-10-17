@@ -17,9 +17,7 @@ CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_appraises
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_appraises
 SELECT
     id,
@@ -35,5 +33,5 @@ WHERE id >
 (
     SELECT max(id)
     FROM ods.ods_Einstein_order_appraises
-)
+);
 "

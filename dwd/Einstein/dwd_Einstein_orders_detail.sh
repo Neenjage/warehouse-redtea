@@ -191,15 +191,15 @@ LEFT JOIN
         type
     FROM dim.dim_Einstein_order_channel
     WHERE import_time = '$import_time'
-) AS order_channel ON t7.channel_id = order_channel.id
+) AS order_channel ON t7.channel_id = order_channel.id;
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table if exists dwd.dwd_Einstein_orders_detail
+drop table if exists dwd.dwd_Einstein_orders_detail;
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dwd.dwd_Einstein_orders_detail_tmp to dwd.dwd_Einstein_orders_detail
+rename table dwd.dwd_Einstein_orders_detail_tmp to dwd.dwd_Einstein_orders_detail;
 "
 
 

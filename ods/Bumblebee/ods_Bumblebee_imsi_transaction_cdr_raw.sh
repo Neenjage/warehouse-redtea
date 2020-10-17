@@ -32,10 +32,8 @@ CREATE TABLE if not exists ods.ods_Bumblebee_imsi_transaction_cdr_raw
 )
 ENGINE = MergeTree
 ORDER BY seq_key
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO table ods.ods_Bumblebee_imsi_transaction_cdr_raw
 SELECT
     imsi ,
@@ -65,6 +63,7 @@ WHERE seq_key >
 (
     SELECT max(seq_key)
     FROM ods.ods_Bumblebee_imsi_transaction_cdr_raw
-)
+);
 "
+
 

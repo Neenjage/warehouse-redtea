@@ -10,6 +10,8 @@ fi
 
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
+drop table if exists dws.dws_Bethune_user_tmp;
+
 CREATE TABLE dws.dws_Bethune_user_tmp
 ENGINE = MergeTree
 ORDER BY user_id AS
@@ -44,14 +46,9 @@ LEFT JOIN
     FROM dwd.dwd_Bethune_top_up_order_detail
     WHERE pay_status = 'PAID'
     GROUP BY user_id
-) AS topup_order ON t1.user_id = topup_order.user_id
-"
+) AS topup_order ON t1.user_id = topup_order.user_id;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dws.dws_Bethune_user
-"
+drop table dws.dws_Bethune_user;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_Bethune_user_tmp to dws.dws_Bethune_user
+rename table dws.dws_Bethune_user_tmp to dws.dws_Bethune_user;
 "
-

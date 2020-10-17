@@ -9,6 +9,8 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline  --max_memory_usage 30000000000 -q"
+drop table if exists dws.dws_redtea_user_tmp;
+
 CREATE TABLE dws.dws_redtea_user_tmp
 Engine=MergeTree
 order by user_id as
@@ -17,8 +19,10 @@ SELECT
     user.source,
     user.model as brand,
     user.model,
+    user.user_status,
     'unknown' as agent_name,
     'unknown' as app_version,
+    'RTG' as residence,
     user.email,
     user.register_time,
     user.last_login_time,
@@ -86,6 +90,7 @@ select
   'Einstein' as source,
   device.brand,
   device.model,
+  'ACTIVE' as user_status,
   multiIf
   (
     device.agent_id = 1,'Vivo',
@@ -104,6 +109,7 @@ select
     '其它'
   ) as agent_name,
   device.app_version,
+  device.residence,
   'unknown' as email,
   device.register_time,
   device.last_login_time,
@@ -152,8 +158,10 @@ select
   user.source,
   user.brand,
   user.model,
+  user.user_status,
   'unknown' as agent_name,
   'unknown' as app_version,
+  'CN' as residence,
   user.email,
   user.register_time,
   user.last_login_time,
@@ -166,6 +174,7 @@ from
   'Bethune' as source,
   brand,
   model,
+  user_status,
   'unknown' as email,
   create_time as register_time,
   login_time as last_login_time
@@ -211,16 +220,13 @@ on order.Einstein_order_id = Einstein_order.order_no) as order1
 left join dwd.dwd_Einstein_order_imsi_profile_relation relation on order1.order_id = relation.order_id) as order2
 left join dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr on order2.transaction_id = cdr.transaction_id) as total
 group by total.user_id) as order
-on user.user_id = order.user_id
+on user.user_id = order.user_id;
+
+drop table if exists dws.dws_redtea_user;
+
+rename table dws.dws_redtea_user_tmp to dws.dws_redtea_user;
 "
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dws.dws_redtea_user
-"
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_redtea_user_tmp to dws.dws_redtea_user
-"
 
 
 

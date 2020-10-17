@@ -29,14 +29,10 @@ CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction
 )
 ENGINE = MergeTree
 ORDER BY imsi_transaction_id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER TABLE ods.ods_Bumblebee_imsi_transaction delete where import_time >='$import_time'
-"
+ALTER TABLE ods.ods_Bumblebee_imsi_transaction delete where import_time >='$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE ods.ods_Bumblebee_imsi_transaction
 SELECT
     imsi_transaction_id,
@@ -63,8 +59,9 @@ FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306
 WHERE imsi_transaction_id >
 (
 SELECT max(imsi_transaction_id) FROM ods.ods_Bumblebee_imsi_transaction
-)
+);
 "
+
 
 
 

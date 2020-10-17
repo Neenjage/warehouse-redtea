@@ -32,5 +32,5 @@ SELECT
     type,
     remark,
     '$import_time'
-FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'order_channel', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c')
+FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'order_channel', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
 "

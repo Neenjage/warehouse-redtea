@@ -14,14 +14,8 @@ ENGINE = MergeTree
 PARTITION BY toYYYYMM(import_time)
 ORDER BY id
 SETTINGS index_granularity = 8192;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-INSERT INTO ods.ods_Einstein_register_device (
-  id,
-  device_id,
-  register_time,
-  import_time)
+INSERT INTO ods.ods_Einstein_register_device
 SELECT
     id,
     device_id,

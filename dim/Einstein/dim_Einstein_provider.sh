@@ -42,5 +42,5 @@ SELECT
     access_key,
     secret_key,
     '$import_time'
-FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'provider', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c')
+FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'provider', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
 "

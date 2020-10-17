@@ -34,7 +34,7 @@ GROUP BY
     carrier,
     plmn,
     location_code,
-    cdr_date
+    cdr_date;
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"

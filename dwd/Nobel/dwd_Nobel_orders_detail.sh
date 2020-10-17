@@ -119,23 +119,27 @@ LEFT JOIN
             name,
             remark
         FROM dim.dim_Nobel_currency
-        WHERE import_time = '2020-09-09') currency_name
+        WHERE import_time = '$import_time') currency_name
     left join
         (select
           name,
           CNY_rate
         FROM dim.dim_Bumblebee_currency_rate
-        WHERE import_time = '2020-08-27') currency_rate
+        WHERE import_time = '$import_time') currency_rate
     ON currency_name.name = currency_rate.name
 ) AS currency ON t5.currency_id = currency.id) t6
-left join dim.dim_Nobel_payment_methods payment
+left join
+(select
+*
+from dim.dim_Nobel_payment_methods
+ where import_time = '$import_time')payment
 on t6.payment_method_id = payment.id
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dwd.dwd_Nobel_orders_detail
+drop table dwd.dwd_Nobel_orders_detail;
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dwd.dwd_Nobel_orders_detail_tmp to dwd.dwd_Nobel_orders_detail
+rename table dwd.dwd_Nobel_orders_detail_tmp to dwd.dwd_Nobel_orders_detail;
 "

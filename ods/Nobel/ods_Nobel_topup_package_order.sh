@@ -3,6 +3,32 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
+CREATE TABLE IF NOT EXISTS ods.ods_Nobel_topup_package_order
+ENGINE=MergeTree
+order by id as
+SELECT
+      id,
+      order_no,
+      out_order_no,
+      topup_package_id,
+      topup_package_name,
+      topup_package_price,
+      order_price,
+      status,
+      currency_id,
+      payment_methods_id,
+      create_time,
+      update_time,
+      order_status,
+      refund_reason,
+      refund_time,
+      amount,
+      user_id,
+      source_type,
+      update_time as effective_time,
+      toDateTime('2105-12-31 23:59:59') AS invalid_time
+FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel','topup_package_order','redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
+
 CREATE TABLE ods.ods_Nobel_topup_package_order_temp
 ENGINE = MergeTree
 ORDER BY id AS
@@ -39,41 +65,13 @@ ANY LEFT JOIN
         SELECT max(update_time)
         FROM ods.ods_Nobel_topup_package_order
     )
-) AS b USING (id)
-";
+) AS b USING (id);
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-DROP TABLE ods.ods_Nobel_topup_package_order
-";
+DROP TABLE IF EXISTS ods.ods_Nobel_topup_package_order;
 
+RENAME TABLE ods.ods_Nobel_topup_package_order_temp TO ods.ods_Nobel_topup_package_order;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-RENAME TABLE ods.ods_Nobel_topup_package_order_temp TO ods.ods_Nobel_topup_package_order
-";
-
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-INSERT INTO ods.ods_Nobel_topup_package_order(
-    id,
-    order_no,
-    out_order_no,
-    topup_package_id,
-    topup_package_name,
-    topup_package_price,
-    order_price,
-    status,
-    currency_id,
-    payment_methods_id,
-    create_time,
-    update_time,
-    order_status,
-    refund_reason,
-    refund_time,
-    amount,
-    user_id,
-    source_type,
-    effective_time,
-    invalid_time)
+INSERT INTO ods.ods_Nobel_topup_package_order
 SELECT
       id,
       order_no,
@@ -100,5 +98,5 @@ WHERE update_time >
 (
     SELECT max(update_time)
     FROM ods.ods_Nobel_topup_package_order
-)
-";
+);
+"

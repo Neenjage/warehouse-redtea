@@ -16,11 +16,8 @@ CREATE TABLE ods.ods_Einstein_order_imsi_profile_relation
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_imsi_profile_relation SELECT
     id,
     order_id,
@@ -35,5 +32,5 @@ WHERE id >
 (
     SELECT MAX(id)
     FROM ods.ods_Einstein_order_imsi_profile_relation
-)
+);
 "

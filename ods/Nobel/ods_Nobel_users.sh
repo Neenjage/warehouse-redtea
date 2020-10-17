@@ -3,6 +3,35 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
+CREATE TABLE IF NOT EXISTS ods.ods_Nobel_users
+ENGINE=MergeTree
+order by id as
+select
+    id,
+    email,
+    password,
+    status,
+    register_time,
+    salt,
+    update_time,
+    active_time,
+    login_time,
+    create_time,
+    source_type,
+    nick_name,
+    country,
+    continent,
+    address,
+    user_level,
+    client_id,
+    apple_user_id,
+    lang,
+    device_token,
+    login_times,
+    update_time as effective_time,
+    toDateTime('2105-12-31 23:59:59') AS invalid_time
+from mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'users', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
+
 CREATE TABLE ods.ods_Nobel_users_temp
 ENGINE = MergeTree
 ORDER BY id AS
@@ -42,42 +71,13 @@ ANY LEFT JOIN
         SELECT max(update_time)
         FROM ods.ods_Nobel_users
     )
-) AS b USING (id)
-";
+) AS b USING (id);
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-DROP TABLE ods.ods_Nobel_users";
+DROP TABLE IF EXISTS ods.ods_Nobel_users;
 
+RENAME TABLE ods.ods_Nobel_users_temp TO ods.ods_Nobel_users;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-RENAME TABLE ods.ods_Nobel_users_temp TO ods.ods_Nobel_users";
-
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-INSERT INTO ods.ods_Nobel_users(
-    id,
-    email,
-    password,
-    status,
-    register_time,
-    salt,
-    update_time,
-    active_time,
-    login_time,
-    create_time,
-    source_type,
-    nick_name,
-    country,
-    continent,
-    address,
-    user_level,
-    client_id,
-    apple_user_id,
-    lang,
-    device_token,
-    login_times,
-    effective_time,
-    invalid_time)
+INSERT INTO TABLE ods.ods_Nobel_users
 SELECT
       id,
       email,
@@ -107,5 +107,6 @@ WHERE update_time >
 (
     SELECT max(update_time)
     FROM ods.ods_Nobel_users
-) FROM ods.ods_Nobel_users
-";
+);
+"
+

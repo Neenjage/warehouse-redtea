@@ -14,10 +14,8 @@ CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_ipaddress
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO  table ods.ods_Einstein_order_ipaddress
 select
     id,
@@ -32,5 +30,5 @@ WHERE id >
   SELECT
     MAX(id)
   FROM ods.ods_Einstein_order_ipaddress
-)
+);
 "

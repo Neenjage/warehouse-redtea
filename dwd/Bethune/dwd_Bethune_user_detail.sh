@@ -7,6 +7,8 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
+drop table if exists dwd.dwd_Bethune_user_detail_tmp;
+
 create table dwd.dwd_Bethune_user_detail_tmp
 Engine=MergeTree
 order by user_id as
@@ -41,14 +43,11 @@ left join
   max(model) as model,
   max(brand) as brand
 from ods.ods_Bethune_user_device
-group by user_id) user_device on user.id = user_device.user_id
+group by user_id) user_device on user.id = user_device.user_id;
+
+drop table if exists dwd.dwd_Bethune_user_detail;
+
+rename table dwd.dwd_Bethune_user_detail_tmp to dwd.dwd_Bethune_user_detail;
 "
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dwd.dwd_Bethune_user_detail
-"
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dwd.dwd_Bethune_user_detail_tmp to dwd.dwd_Bethune_user_detail
-"
 

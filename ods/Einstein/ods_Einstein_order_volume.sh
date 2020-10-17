@@ -17,15 +17,10 @@ CREATE TABLE IF NOT EXISTS ods.ods_Einstein_order_volume
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER TABLE ods.ods_Einstein_order_volume DELETE WHERE import_time >= '$import_time'
-"
+ALTER TABLE ods.ods_Einstein_order_volume DELETE WHERE import_time >= '$import_time';
 
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Einstein_order_volume
 SELECT
     id,
@@ -38,5 +33,5 @@ WHERE id >
 (
     SELECT max(id)
     FROM ods.ods_Einstein_order_volume
-)
+);
 "

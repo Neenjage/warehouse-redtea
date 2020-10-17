@@ -25,10 +25,8 @@ CREATE TABLE if not exists ods.ods_Bethune_user
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192；
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO ods.ods_Bethune_user
 SELECT
   id,
@@ -52,5 +50,6 @@ WHERE id >
 (
     SELECT max(id)
     FROM ods.ods_Bethune_user
-)
+);
 "
+

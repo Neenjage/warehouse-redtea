@@ -34,31 +34,9 @@ CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_profile
 )
 ENGINE = MergeTree
 ORDER BY imsi_profile_id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-INSERT INTO ods.ods_Bumblebee_imsi_profile (
-  imsi_profile_id,
-  iccid,
-  imsi,
-  efki,
-  efopc,
-  msisdn,
-  carrier_id,
-  where_to_use,
-  is_test,
-  reusable,
-  remark,
-  allocated,
-  activated,
-  merchant_id,
-  last_activated_time,
-  imsi_type,
-  batch_id,
-  has_csim,
-  bundle_group_id,
-  allocation_code)
+INSERT INTO ods.ods_Bumblebee_imsi_profile
 SELECT
     imsi_profile_id,
     iccid,
@@ -87,3 +65,4 @@ WHERE imsi_profile_id >
     FROM ods.ods_Bumblebee_imsi_profile
 );
 "
+

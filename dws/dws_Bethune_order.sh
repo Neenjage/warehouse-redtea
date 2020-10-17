@@ -9,6 +9,8 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
+drop table if exists dws.dws_Bethune_order_tmp;
+
 create table dws.dws_Bethune_order_tmp
 Engine=MergeTree
 order by id as
@@ -81,20 +83,12 @@ top_up_order.pay_status as status,
 from
 dwd.dwd_Bethune_top_up_order_detail top_up_order) as order
 left join dwd.dwd_Bethune_user_detail as user
-on order.user_id = user.user_id
-"
+on order.user_id = user.user_id;
 
+drop table if exists dws.dws_Bethune_order;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dws.dws_Bethune_order
-"
+rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order
-"
-
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table dws.dws_Bethune_order_tmp
 Engine=MergeTree
 order by id as
@@ -119,14 +113,10 @@ where dbo.source = 'order'
 and dbo.type = '2'
 and status not IN ('0','2','3','5')) as order
 GROUP by order.user_id) as min
-on do.user_id = min.user_id and do.create_time = min.first_create_time
-"
+on do.user_id = min.user_id and do.create_time = min.first_create_time;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dws.dws_Bethune_order
-"
+drop table dws.dws_Bethune_order;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order
+rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order;
 "
 

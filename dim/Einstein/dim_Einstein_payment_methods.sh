@@ -45,5 +45,5 @@ SELECT
     status,
     refund_check,
     '$import_time'
-FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'payment_methods', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c')
+FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'payment_methods', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
 "

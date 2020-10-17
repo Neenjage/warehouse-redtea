@@ -31,7 +31,7 @@ CREATE TABLE if not exists dwd.dwd_Bumblebee_imsi_transaction_detail
 )
 ENGINE = MergeTree
 ORDER BY transaction_id
-SETTINGS index_granularity = 8192
+SETTINGS index_granularity = 8192;
 "
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
