@@ -8,7 +8,9 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+drop table if exists dwd.dwd_Nobel_orders_detail_tmp;
+
 create table dwd.dwd_Nobel_orders_detail_tmp
 Engine=MergeTree
 order by order_id as
@@ -133,13 +135,9 @@ left join
 *
 from dim.dim_Nobel_payment_methods
  where import_time = '$import_time')payment
-on t6.payment_method_id = payment.id
-"
+on t6.payment_method_id = payment.id;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dwd.dwd_Nobel_orders_detail;
-"
+drop table if exists dwd.dwd_Nobel_orders_detail;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dwd.dwd_Nobel_orders_detail_tmp to dwd.dwd_Nobel_orders_detail;
 "

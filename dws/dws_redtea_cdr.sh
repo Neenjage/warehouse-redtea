@@ -8,7 +8,9 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+drop table if exists dws.dws_redtea_cdr_tmp;
+
 create table dws.dws_redtea_cdr_tmp
 Engine=MergeTree
 order by transaction_id as
@@ -131,18 +133,9 @@ SELECT
   *
 FROM
 dwd.dwd_Bumblebee_local_carrier_detail where import_time = '$import_time') local_carrier
-on t4.location_code = local_carrier.location_code and toString(t4.bundle_group_id) = toString(local_carrier.bundle_group_id)
+on t4.location_code = local_carrier.location_code and toString(t4.bundle_group_id) = toString(local_carrier.bundle_group_id);
+
+drop table if exists dws.dws_redtea_cdr;
+
+rename table dws.dws_redtea_cdr_tmp to dws.dws_redtea_cdr;
 "
-
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dws.dws_redtea_cdr
-"
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_redtea_cdr_tmp to dws.dws_redtea_cdr
-"
-
-
-
-

@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_bundle_group_bundle
 (
     id Int32,
@@ -20,15 +20,10 @@ CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_bundle_group_bundle
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER table dim.dim_Bumblebee_bundle_group_bundle delete where import_time = '$import_time'
-"
+ALTER table dim.dim_Bumblebee_bundle_group_bundle delete where import_time = '$import_time';
 
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Bumblebee_bundle_group_bundle
 select
     id,
@@ -38,8 +33,7 @@ select
     create_time,
     '$import_time'
 from
-mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'bundle_group_bundle', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg')
+mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'bundle_group_bundle', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
 "
-
 
 

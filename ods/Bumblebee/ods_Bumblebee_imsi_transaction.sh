@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 #generate_time 与自增id基本一致的顺序性
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction
 (
     imsi_transaction_id Int32,
@@ -58,10 +58,6 @@ SELECT
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'imsi_transaction', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg')
 WHERE imsi_transaction_id >
 (
-SELECT max(imsi_transaction_id) FROM ods.ods_Bumblebee_imsi_transaction
+  SELECT max(imsi_transaction_id) FROM ods.ods_Bumblebee_imsi_transaction
 );
 "
-
-
-
-

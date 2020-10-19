@@ -52,13 +52,10 @@ CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_bundle
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER TABLE dim.dim_Bumblebee_bundle delete where import_time = '$import_time'
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+ALTER TABLE dim.dim_Bumblebee_bundle delete where import_time = '$import_time';
+
 insert into table dim.dim_Bumblebee_bundle
 SELECT
     id ,
@@ -99,5 +96,5 @@ SELECT
     inactive_code ,
     period_type ,
     '$import_time'
-FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'bundle', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg')
+FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'bundle', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
 "

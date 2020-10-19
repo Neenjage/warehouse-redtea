@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Einstein_provider
 (
     id Int32,
@@ -24,13 +24,9 @@ CREATE TABLE IF NOT EXISTS dim.dim_Einstein_provider
 ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dim.dim_Einstein_provider delete where import_time = '$import_time'
-"
+alter table dim.dim_Einstein_provider delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Einstein_provider
 SELECT
     id,

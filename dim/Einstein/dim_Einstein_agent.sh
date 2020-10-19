@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Einstein_agent
 (
     id Int32,
@@ -22,13 +22,9 @@ ENGINE = MergeTree
 PARTITION BY toYYYYMM(import_time)
 ORDER BY id
 SETTINGS index_granularity = 8192;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER TABLE ods_Einstein.agent DELETE WHERE import_time = '$import_time'
-"
+ALTER TABLE ods_Einstein.agent DELETE WHERE import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Einstein_agent
 SELECT
     id,

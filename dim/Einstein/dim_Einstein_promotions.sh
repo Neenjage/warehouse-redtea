@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE dim.dim_Einstein_promotions
 (
     id Int32,
@@ -33,16 +33,12 @@ CREATE TABLE dim.dim_Einstein_promotions
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dim.dim_Einstein_promotions delete where import_time = '$import_time'
-"
+alter table dim.dim_Einstein_promotions delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Einstein_promotions
-SELECT 
+SELECT
     id,
     title,
     sub_title,
@@ -63,5 +59,5 @@ SELECT
     share_url,
     '$import_time'
 FROM
-mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'promotions', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c')
+mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'promotions', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
 "

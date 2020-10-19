@@ -32,13 +32,9 @@ CREATE TABLE if not exists dwd.dwd_Bumblebee_imsi_transaction_detail
 ENGINE = MergeTree
 ORDER BY transaction_id
 SETTINGS index_granularity = 8192;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER TABLE dwd.dwd_Bumblebee_imsi_transaction_detail delete where import_time = '$import_time'
-"
+ALTER TABLE dwd.dwd_Bumblebee_imsi_transaction_detail delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Bumblebee_imsi_transaction_detail
 SELECT
     t1.transaction_id,
@@ -107,9 +103,8 @@ LEFT JOIN
         FROM dim.dim_Bumblebee_channel
         WHERE import_time = '$import_time'
     ) AS channel ON merchant.channel_id = channel.id
-) AS t2 ON t1.merchant_id = t2.merchant_id
+) AS t2 ON t1.merchant_id = t2.merchant_id;
 "
-
 
 
 

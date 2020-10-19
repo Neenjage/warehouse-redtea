@@ -23,15 +23,10 @@ CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_merchant
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER table dim.dim_Bumblebee_merchant delete where import_time = '$import_time'
-"
+ALTER table dim.dim_Bumblebee_merchant delete where import_time = '$import_time';
 
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Bumblebee_merchant
 SELECT
     id,
@@ -44,5 +39,5 @@ SELECT
     group_code,
     '$import_time'
 FROM
-mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'merchant', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg')
+mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'merchant', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
 "

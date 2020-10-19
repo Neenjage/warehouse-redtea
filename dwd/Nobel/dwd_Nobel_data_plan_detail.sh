@@ -8,8 +8,8 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE dwd.dwd_Nobel_data_plan_detail
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+CREATE TABLE if not exists dwd.dwd_Nobel_data_plan_detail
 (
     day_client_resource_id Int32,
     data_plan_day_id Nullable(Int32),
@@ -44,14 +44,10 @@ CREATE TABLE dwd.dwd_Nobel_data_plan_detail
 )
 ENGINE = MergeTree
 ORDER BY day_client_resource_id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER table dwd.dwd_Nobel_data_plan_detail delete where import_time = '$import_time'
-"
+ALTER table dwd.dwd_Nobel_data_plan_detail delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Nobel_data_plan_detail
 select
   dcr.id as day_client_resource_id,
@@ -186,7 +182,6 @@ left join
         FROM dim.dim_Nobel_currency where import_time = '$import_time') currency
         on t2.currency_id = currency.id) t3
     on dpd.data_plan_volume_id = t3.data_plan_volume_id) t4
-on dcr.day_id = t4.data_plan_day_id
+on dcr.day_id = t4.data_plan_day_id;
 "
-
 

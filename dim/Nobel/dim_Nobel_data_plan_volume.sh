@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Nobel_data_plan_volume
 (
     id Int32,
@@ -33,14 +33,10 @@ CREATE TABLE IF NOT EXISTS dim.dim_Nobel_data_plan_volume
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-ALTER table dim.dim_Nobel_data_plan_volume delete where import_time = '$import_time'
-"
+ALTER table dim.dim_Nobel_data_plan_volume delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Nobel_data_plan_volume
 SELECT
     id,
@@ -62,5 +58,5 @@ SELECT
     currency_id,
     coverage_area,
     '$import_time'
-FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'data_plan_volume', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13')
+FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'data_plan_volume', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
 "

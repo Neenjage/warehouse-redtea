@@ -9,7 +9,9 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dwd.dwd_Einstein_orders_detail_tmp
+drop table if exists dwd.dwd_Einstein_orders_detail_tmp;
+
+CREATE TABLE dwd.dwd_Einstein_orders_detail_tmp
 ENGINE=MergeTree
 ORDER BY order_id AS
 SELECT
@@ -192,15 +194,12 @@ LEFT JOIN
     FROM dim.dim_Einstein_order_channel
     WHERE import_time = '$import_time'
 ) AS order_channel ON t7.channel_id = order_channel.id;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dwd.dwd_Einstein_orders_detail;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dwd.dwd_Einstein_orders_detail_tmp to dwd.dwd_Einstein_orders_detail;
 "
+
 
 
 

@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dwd.dwd_Einstein_data_plan_detail
 (
     data_plan_id Int32,
@@ -40,14 +40,10 @@ CREATE TABLE IF NOT EXISTS dwd.dwd_Einstein_data_plan_detail
 )
 ENGINE = MergeTree
 ORDER BY data_plan_id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dwd.dwd_Einstein_data_plan_detail delete where import_time = '$import_time'
-"
+alter table dwd.dwd_Einstein_data_plan_detail delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Einstein_data_plan_detail
 SELECT
     t5.*,
@@ -189,8 +185,7 @@ ANY LEFT JOIN
         FROM dim.dim_Einstein_provider
         WHERE import_time = '$import_time'
     ) AS provider ON dpp.provider_id = provider.id
-) AS t6 ON t5.data_plan_id = t6.data_plan_id
+) AS t6 ON t5.data_plan_id = t6.data_plan_id;
 "
-
 
 

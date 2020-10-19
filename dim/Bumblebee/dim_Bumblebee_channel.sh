@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_channel
 (
     id Int32,
@@ -38,13 +38,9 @@ CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_channel
 ENGINE = MergeTree()
 ORDER BY id
 SETTINGS index_granularity = 8192;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dim.dim_Bumblebee_channel delete where import_time = '$import_time'
-"
+alter table dim.dim_Bumblebee_channel delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO dim.dim_Bumblebee_channel
 SELECT
     id,
@@ -71,5 +67,3 @@ SELECT
     '$import_time'
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'channel', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
 "
-
-

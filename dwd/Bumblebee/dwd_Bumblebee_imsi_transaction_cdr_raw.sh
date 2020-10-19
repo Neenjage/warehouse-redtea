@@ -3,7 +3,9 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 #每天来的数据具有延迟性，所有需要重新group by计算(import_time在此表示该话单的开始时间属于当天)。
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+drop table if exists dwd.dwd_Bumblebee_imsi_transaction_cdr_raw_tmp;
+
 CREATE TABLE dwd.dwd_Bumblebee_imsi_transaction_cdr_raw_tmp
 ENGINE = MergeTree
 ORDER BY transaction_id AS
@@ -35,20 +37,8 @@ GROUP BY
     plmn,
     location_code,
     cdr_date;
-"
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dwd.dwd_Bumblebee_imsi_transaction_cdr_raw;
-"
+drop table if exists dwd.dwd_Bumblebee_imsi_transaction_cdr_raw;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 rename table dwd.dwd_Bumblebee_imsi_transaction_cdr_raw_tmp to dwd.dwd_Bumblebee_imsi_transaction_cdr_raw;
 "
-
-
-
-
-
-
-
-

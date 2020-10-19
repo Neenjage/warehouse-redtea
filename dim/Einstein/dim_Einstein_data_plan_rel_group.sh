@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE dim.dim_Einstein_data_plan_rel_group
 (
     id Int32,
@@ -18,14 +18,10 @@ CREATE TABLE dim.dim_Einstein_data_plan_rel_group
 )
 ENGINE = MergeTree
 ORDER BY id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-Alter  TABLE dim.dim_Einstein_data_plan_rel_group delete where import_time = '$import_time'
-"
+AlTER TABLE dim.dim_Einstein_data_plan_rel_group delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dim.dim_Einstein_data_plan_rel_group
 SELECT
     id,
@@ -33,5 +29,5 @@ SELECT
     data_plan_id,
     '$import_time'
 FROM
-mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'data_plan_rel_group', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c')
+mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'data_plan_rel_group', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
 "

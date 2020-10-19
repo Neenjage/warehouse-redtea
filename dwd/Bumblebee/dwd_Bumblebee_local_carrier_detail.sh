@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dwd.dwd_Bumblebee_local_carrier_detail
 (
     local_carrier_id Int32,
@@ -28,14 +28,10 @@ CREATE TABLE IF NOT EXISTS dwd.dwd_Bumblebee_local_carrier_detail
 )
 ENGINE = MergeTree
 ORDER BY local_carrier_id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dwd.dwd_Bumblebee_local_carrier_detail delete where import_time = '$import_time'
-"
+alter table dwd.dwd_Bumblebee_local_carrier_detail delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Bumblebee_local_carrier_detail
 SELECT
     local_carrier.*,
@@ -88,7 +84,6 @@ left join
   FROM dim.dim_Bumblebee_local_carrier_info where import_time = '$import_time') as local_carrier_info
   ON local_carrier.local_carrier_info_id = local_carrier_info.id
 "
-
 
 
 

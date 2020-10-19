@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 create table if not exists dwd.dwd_Bumblebee_bundle_detail
 (
   bundle_id Int32,
@@ -29,14 +29,10 @@ create table if not exists dwd.dwd_Bumblebee_bundle_detail
 )
 Engine=MergeTree
 order by bundle_id
-SETTINGS index_granularity = 8192
-"
+SETTINGS index_granularity = 8192;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dwd.dwd_Bumblebee_bundle_detail delete where import_time = '$import_time'
-"
+alter table dwd.dwd_Bumblebee_bundle_detail delete where import_time = '$import_time';
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dwd.dwd_Bumblebee_bundle_detail
 SELECT
     t2.bundle_id,
@@ -122,5 +118,6 @@ LEFT JOIN
       FROM dim.dim_Bumblebee_bundle_group
       where import_time = $import_time) AS bg
     ON bgd.bundle_group_id = bg.bundle_group_id
-) AS t3 ON t2.bundle_id = t3.bundle_id
+) AS t3 ON t2.bundle_id = t3.bundle_id;
 "
+

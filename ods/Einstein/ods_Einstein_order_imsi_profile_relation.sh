@@ -2,8 +2,8 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE ods.ods_Einstein_order_imsi_profile_relation
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+CREATE TABLE if not exists ods.ods_Einstein_order_imsi_profile_relation
 (
     id Int32,
     order_id Int32,
@@ -18,7 +18,8 @@ ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
-INSERT INTO ods.ods_Einstein_order_imsi_profile_relation SELECT
+INSERT INTO ods.ods_Einstein_order_imsi_profile_relation
+SELECT
     id,
     order_id,
     iccid,

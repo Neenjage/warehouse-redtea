@@ -2,6 +2,12 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
+import_time=`date +%F`
+
+if [ -n "$1" ];then
+  import_time=$1
+fi
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Einstein_register_device
 (
@@ -20,7 +26,7 @@ SELECT
     id,
     device_id,
     register_time,
-    today()
+    '$import_time'
 FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'register_device', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c')
 WHERE id >
 (

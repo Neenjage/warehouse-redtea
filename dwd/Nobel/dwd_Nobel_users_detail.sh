@@ -2,7 +2,9 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+drop table if exists dwd.dwd_Nobel_users_detail_tmp;
+
 CREATE TABLE dwd.dwd_Nobel_users_detail_tmp
 ENGINE = MergeTree
 ORDER BY user_id AS
@@ -50,17 +52,9 @@ LEFT JOIN
     FROM ods.ods_Nobel_user_device
     WHERE isNotNull(user_id)
     GROUP BY user_id
-) AS device ON t1.user_id = device.user_id
+) AS device ON t1.user_id = device.user_id;
+
+drop table if exists dwd.dwd_Nobel_users_detail;
+
+rename table dwd.dwd_Nobel_users_detail_tmp to dwd.dwd_Nobel_users_detail;
 "
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dwd.dwd_Nobel_users_detail
-"
-
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dwd.dwd_Nobel_users_detail_tmp to dwd.dwd_Nobel_users_detail
-"
-
-
-
-
