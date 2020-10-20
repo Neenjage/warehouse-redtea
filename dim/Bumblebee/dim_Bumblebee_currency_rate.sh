@@ -9,12 +9,13 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password '' --multiquery --multiline -q"
-create table if not exists dim.dim_Bumblebee_currency_rate(
-id Int32,
-name String,
-USD_rate Float32,
-CNY_rate Float32,
-import_time Date
+create table if not exists dim.dim_Bumblebee_currency_rate
+(
+  id Int32,
+  name String,
+  USD_rate Float32,
+  CNY_rate Float32,
+  import_time Date
 )
 Engine=MergeTree
 order by id
@@ -22,4 +23,4 @@ SETTINGS index_granularity = 8192;
 "
 
 #获取数据从api接口中
-python3.7 /home/ops/warehouse-redtea/dim/dim_Bumblebee_currency_rate.py $import_time
+python3.7 /home/ops/warehouse-redtea/dim/Bumblebee/dim_Bumblebee_currency_rate.py $import_time

@@ -22,7 +22,7 @@ ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
-ALTER table dim.dim_Bumblebee_bundle_group_bundle delete where import_time = '$import_time';
+ALTER TABLE dim.dim_Bumblebee_bundle_group_bundle delete where import_time = '$import_time';
 
 INSERT INTO TABLE dim.dim_Bumblebee_bundle_group_bundle
 select

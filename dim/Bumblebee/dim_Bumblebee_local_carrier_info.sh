@@ -28,7 +28,7 @@ SETTINGS index_granularity = 8192;
 
 alter table dim.dim_Bumblebee_local_carrier_info delete where import_time = '$import_time';
 
-insert into  table dim.dim_Bumblebee_local_carrier_info
+insert into table dim.dim_Bumblebee_local_carrier_info
 select
     id,
     local_carrier_name,

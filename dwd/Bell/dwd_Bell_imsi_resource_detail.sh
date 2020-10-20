@@ -8,8 +8,10 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-create table if not EXISTS dwd.dwd_Bell_imsi_resource_detail_tmp
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+drop table if exists dwd.dwd_Bell_imsi_resource_detail_tmp;
+
+create table dwd.dwd_Bell_imsi_resource_detail_tmp
 Engine=MergeTree
 order by id as
 select
@@ -51,13 +53,9 @@ code as gaga_merchant_code,
 name as gaga_merchant_name
 from
 dim.dim_Bumblebee_merchant where import_time = '$import_time') gaga_merchant
-on t1.gaga_merchant_code = gaga_merchant.gaga_merchant_code
-"
+on t1.gaga_merchant_code = gaga_merchant.gaga_merchant_code;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dwd.dwd_Bell_imsi_resource_detail
-"
+drop table if exists dwd.dwd_Bell_imsi_resource_detail;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dwd.dwd_Bell_imsi_resource_detail_tmp to dwd.dwd_Bell_imsi_resource_detail
+rename table dwd.dwd_Bell_imsi_resource_detail_tmp to dwd.dwd_Bell_imsi_resource_detail;
 "

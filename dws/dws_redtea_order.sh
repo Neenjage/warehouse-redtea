@@ -8,7 +8,10 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+#将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
+drop table if exists dws.dws_redtea_order_tmp;
+
 create table dws.dws_redtea_order_tmp
 Engine=MergeTree
 order by order_id as
@@ -148,23 +151,14 @@ dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr_raw
 where cdr_raw.transaction_id != -1
 group by
   cdr_raw.transaction_id
-) as cdr on total2.transaction_id = cdr.transaction_id
-"
+) as cdr on total2.transaction_id = cdr.transaction_id;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-drop table dws.dws_redtea_order
-"
+drop table if exists dws.dws_redtea_order;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-rename table dws.dws_redtea_order_tmp to dws.dws_redtea_order
-"
+rename table dws.dws_redtea_order_tmp to dws.dws_redtea_order;
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
-alter table dws.dws_redtea_order delete where transaction_id = -1
-"
+alter table dws.dws_redtea_order delete where transaction_id = -1;
 
-#将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
 INSERT INTO TABLE dws.dws_redtea_order(
 order_id,
 currency_name,
@@ -195,7 +189,7 @@ from
 dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr_raw
 where cdr_raw.transaction_id = -1
 group by
-  cdr_raw.transaction_id
+  cdr_raw.transaction_id;
 "
 
 

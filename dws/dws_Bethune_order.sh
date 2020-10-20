@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 drop table if exists dws.dws_Bethune_order_tmp;
 
 create table dws.dws_Bethune_order_tmp
@@ -115,7 +115,7 @@ and status not IN ('0','2','3','5')) as order
 GROUP by order.user_id) as min
 on do.user_id = min.user_id and do.create_time = min.first_create_time;
 
-drop table dws.dws_Bethune_order;
+drop table if exists dws.dws_Bethune_order;
 
 rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order;
 "

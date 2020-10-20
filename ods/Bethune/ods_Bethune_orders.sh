@@ -63,7 +63,7 @@ ANY LEFT JOIN
     )
 ) AS b USING (id);
 
-DROP table ods.ods_Bethune_orders;
+DROP table if exists ods.ods_Bethune_orders;
 
 RENAME table ods.ods_Bethune_orders_temp to ods.ods_Bethune_orders;
 
@@ -89,7 +89,3 @@ SELECT
 FROM mysql('db-cnbj-prod.c34nqvzohzfw.rds.cn-north-1.amazonaws.com.cn:3306', 'Bethune', 'orders', 'he.jin', 'MUtxodhUx9yD507UDHz2ebD3HbKmHLrXm')
 WHERE update_time >  (select MAX(update_time) from ods.ods_Bethune_orders);
 "
-
-
-
-

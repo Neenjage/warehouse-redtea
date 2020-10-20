@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password '' --multiquery --multiline -q"
-CREATE TABLE dim.dim_Einstein_promotions
+CREATE TABLE if not exists dim.dim_Einstein_promotions
 (
     id Int32,
     title Nullable(String),

@@ -2,10 +2,10 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 DROP TABLE IF EXISTS ods.ods_Einstein_device_tmp;
 
-CREATE TABLE IF NOT EXISTS ods.ods_Einstein_device_tmp
+CREATE TABLE ods.ods_Einstein_device_tmp
 ENGINE = MergeTree
 ORDER BY device_id AS
 SELECT 

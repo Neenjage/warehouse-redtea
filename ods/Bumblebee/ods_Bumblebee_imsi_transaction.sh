@@ -2,6 +2,12 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
+import_time=`date +%F`
+
+if [ -n "$1" ];then
+  import_time=$1
+fi
+
 #generate_time 与自增id基本一致的顺序性
 clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction

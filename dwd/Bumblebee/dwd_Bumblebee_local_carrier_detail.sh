@@ -82,7 +82,7 @@ left join
   mcc,
   mnc
   FROM dim.dim_Bumblebee_local_carrier_info where import_time = '$import_time') as local_carrier_info
-  ON local_carrier.local_carrier_info_id = local_carrier_info.id
+  ON local_carrier.local_carrier_info_id = local_carrier_info.id;
 "
 
 

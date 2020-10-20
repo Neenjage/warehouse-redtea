@@ -39,7 +39,7 @@ ENGINE = MergeTree()
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
-alter table dim.dim_Bumblebee_channel delete where import_time = '$import_time';
+ALTER TABLE dim.dim_Bumblebee_channel delete where import_time = '$import_time';
 
 INSERT INTO dim.dim_Bumblebee_channel
 SELECT

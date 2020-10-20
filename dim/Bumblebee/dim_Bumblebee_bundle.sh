@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_bundle
 (
     id Int32,
@@ -56,7 +56,7 @@ SETTINGS index_granularity = 8192;
 
 ALTER TABLE dim.dim_Bumblebee_bundle delete where import_time = '$import_time';
 
-insert into table dim.dim_Bumblebee_bundle
+INSERT INTO table dim.dim_Bumblebee_bundle
 SELECT
     id ,
     bundle_type ,

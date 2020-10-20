@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 #用户的设备登录信息包含有ip等信息
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bethune_user_device
 ENGINE = MergeTree
 ORDER BY id AS

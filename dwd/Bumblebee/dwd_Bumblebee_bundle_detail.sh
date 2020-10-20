@@ -78,7 +78,16 @@ FROM
             carrier.carrier_id as carrier_id,
             carrier.carrier_name as carrier_name,
             carrier.carrier_status as carrier_status
-        FROM dim.dim_Bumblebee_bundle AS bundle where bundle.import_time = '$import_time'
+        FROM (SELECT
+                id,
+                carrier_id,
+                code,
+                name,
+                data_volume,
+                location,
+                enable_time
+              FROM dim.dim_Bumblebee_bundle
+              WHERE import_time = '$import_time') AS bundle
         LEFT JOIN
         (
             SELECT
@@ -108,7 +117,8 @@ LEFT JOIN
         bg.bundle_group_name as bundle_group_name
     FROM
       (SELECT
-          bundle_id
+          bundle_id,
+          bundle_group_id
        FROM dim.dim_Bumblebee_bundle_group_bundle
        where import_time = '$import_time') AS bgd
     LEFT JOIN
@@ -116,7 +126,7 @@ LEFT JOIN
           bundle_group_id,
           bundle_group_name
       FROM dim.dim_Bumblebee_bundle_group
-      where import_time = $import_time) AS bg
+      where import_time = '$import_time') AS bg
     ON bgd.bundle_group_id = bg.bundle_group_id
 ) AS t3 ON t2.bundle_id = t3.bundle_id;
 "

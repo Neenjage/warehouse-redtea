@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password $password --multiquery --multiline  --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password '' --multiquery --multiline  --max_memory_usage 30000000000 -q"
 drop table if exists dws.dws_redtea_user_tmp;
 
 CREATE TABLE dws.dws_redtea_user_tmp
@@ -226,14 +226,3 @@ drop table if exists dws.dws_redtea_user;
 
 rename table dws.dws_redtea_user_tmp to dws.dws_redtea_user;
 "
-
-
-
-
-
-
-
-
-
-
-

@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 #记录的用户信息包含当前拥有的豆子与砖石
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 CREATE TABLE if not exists ods.ods_Bethune_user
 (
     id Int32,

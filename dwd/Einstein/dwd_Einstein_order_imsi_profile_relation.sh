@@ -45,7 +45,7 @@ left join
 from dim.dim_Bumblebee_bundle
 where import_time = '$import_time') b on t1.bundle_code = b.code;
 
-drop table dwd.dwd_Einstein_order_imsi_profile_relation;
+drop table if exists dwd.dwd_Einstein_order_imsi_profile_relation;
 
 rename table dwd.dwd_Einstein_order_imsi_profile_relation_tmp to dwd.dwd_Einstein_order_imsi_profile_relation;
 "

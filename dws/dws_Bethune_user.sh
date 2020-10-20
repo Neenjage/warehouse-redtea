@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 
-clickhouse-client --user $user --password $password --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline -q"
 drop table if exists dws.dws_Bethune_user_tmp;
 
 CREATE TABLE dws.dws_Bethune_user_tmp
@@ -48,7 +48,7 @@ LEFT JOIN
     GROUP BY user_id
 ) AS topup_order ON t1.user_id = topup_order.user_id;
 
-drop table dws.dws_Bethune_user;
+drop table if exists dws.dws_Bethune_user;
 
 rename table dws.dws_Bethune_user_tmp to dws.dws_Bethune_user;
 "

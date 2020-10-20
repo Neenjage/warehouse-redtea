@@ -102,7 +102,7 @@ left join
         dpd.id as data_plan_day_id,
         dpd.data_plan_volume_id,
         dpd.day,
-        dpd.status as data_plan_day_status,
+        dpd.status,
         t3.area_id,
         t3.data_plan_volume,
         t3.data_plan_volume_status,
