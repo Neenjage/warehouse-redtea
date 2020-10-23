@@ -30,14 +30,11 @@ CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction
     parent_code String,
     url Nullable(String),
     threshold Nullable(String),
-    ac String,
-    import_time Date
+    ac String
 )
 ENGINE = MergeTree
 ORDER BY imsi_transaction_id
 SETTINGS index_granularity = 8192;
-
-ALTER TABLE ods.ods_Bumblebee_imsi_transaction delete where import_time >='$import_time';
 
 INSERT INTO TABLE ods.ods_Bumblebee_imsi_transaction
 SELECT
@@ -59,8 +56,7 @@ SELECT
     parent_code,
     url,
     threshold,
-    ac,
-    toDate(addHours(generate_time,8)) as import_time
+    ac
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'imsi_transaction', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg')
 WHERE imsi_transaction_id >
 (

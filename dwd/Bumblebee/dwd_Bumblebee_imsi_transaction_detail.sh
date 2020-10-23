@@ -9,33 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password '' --multiquery --multiline -q"
-CREATE TABLE if not exists dwd.dwd_Bumblebee_imsi_transaction_detail
-(
-    transaction_id Int32,
-    imsi Nullable(String),
-    iccid Nullable(String),
-    bundle_id Nullable(String),
-    imsi_profile_id Nullable(Int32),
-    transaction_code String,
-    transaction_status Nullable(String),
-    merchant_id Nullable(Int32),
-    merchant_code Nullable(String),
-    merchant_name Nullable(String),
-    merchant_status Nullable(String),
-    channel_id Nullable(Int32),
-    channel_code Nullable(String),
-    channel_name Nullable(String),
-    channel_country Nullable(String),
-    channel_contact_name Nullable(String),
-    import_time Date
-)
-ENGINE = MergeTree
-ORDER BY transaction_id
-SETTINGS index_granularity = 8192;
+DROP TABLE if exists dwd.dwd_Bumblebee_imsi_transaction_detail_tmp;
 
-ALTER TABLE dwd.dwd_Bumblebee_imsi_transaction_detail delete where import_time = '$import_time';
-
-INSERT INTO TABLE dwd.dwd_Bumblebee_imsi_transaction_detail
+CREATE TABLE dwd.dwd_Bumblebee_imsi_transaction_detail_tmp
+ENGINE=MergeTree
+ORDER BY transaction_id AS
 SELECT
     t1.transaction_id,
     t1.imsi,
@@ -52,8 +30,7 @@ SELECT
     t2.channel_code,
     t2.channel_name,
     t2.channel_country,
-    t2.channel_contact_name,
-    '$import_time'
+    t2.channel_contact_name
 FROM
 (
     SELECT
@@ -67,7 +44,6 @@ FROM
         ip.iccid
     FROM ods.ods_Bumblebee_imsi_transaction it
     left join ods.ods_Bumblebee_imsi_profile ip on it.imsi = ip.imsi
-    WHERE it.import_time = '$import_time'
 ) AS t1
 LEFT JOIN
 (
@@ -104,8 +80,8 @@ LEFT JOIN
         WHERE import_time = '$import_time'
     ) AS channel ON merchant.channel_id = channel.id
 ) AS t2 ON t1.merchant_id = t2.merchant_id;
+
+drop table if exists dwd.dwd_Bumblebee_imsi_transaction_detail;
+
+rename table dwd.dwd_Bumblebee_imsi_transaction_detail_tmp to dwd.dwd_Bumblebee_imsi_transaction_detail;
 "
-
-
-
-

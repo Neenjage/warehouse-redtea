@@ -23,7 +23,7 @@ PARTITION BY toYYYYMM(import_time)
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
-ALTER TABLE ods_Einstein.agent DELETE WHERE import_time = '$import_time';
+ALTER TABLE dim.dim_Einstein_agent DELETE WHERE import_time = '$import_time';
 
 INSERT INTO dim.dim_Einstein_agent
 SELECT

@@ -33,7 +33,7 @@ bundle_detail.bundle_group_name
 from
 (select
 total.*,
-if(transaction.transaction_id = 0,-1,transaction.transaction_id) as transaction_id
+if(transaction.transaction_id = 0,-2,transaction.transaction_id) as transaction_id
 FROM
 (SELECT
   t1.*,

@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 #记录注册时间及最近的登录时间   join右边数据量目前内存还不能完全接入，故采用分批处理。
-clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password '' --multiquery --multiline --max_memory_usage 30000000000 -q"
 drop table if exists dwd.dwd_Einstein_device_detail_tmp1;
 
 create TABLE dwd.dwd_Einstein_device_detail_tmp1
@@ -130,7 +130,3 @@ DROP TABLE if exists dwd.dwd_Einstein_device_detail_tmp2;
 
 RENAME TABLE dwd.dwd_Einstein_device_detail_tmp TO dwd.dwd_Einstein_device_detail;
 "
-
-
-
-

@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-#每天来的数据具有延迟性，所有需要重新group by计算(import_time在此表示该话单的开始时间属于当天)。
+#每天来的数据具有延迟性，所有需要重新group by计算(import_time在此表示该话单的开始时间属于当天)。transaction_id 为0 代表不知道所属哪一个订单，可能为免费流量使用等。
 clickhouse-client --user $user --password '' --multiquery --multiline -q"
 drop table if exists dwd.dwd_Bumblebee_imsi_transaction_cdr_raw_tmp;
 

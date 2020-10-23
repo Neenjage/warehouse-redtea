@@ -19,12 +19,16 @@ CREATE TABLE IF NOT EXISTS dwd.dwd_Bumblebee_local_carrier_detail
     local_carrier_info_id Nullable(Int32),
     local_carrier_name Nullable(String),
     location_name Nullable(String),
+    create_time Nullable(DateTime),
+    last_update_time Nullable(DateTime),
+    status Nullable(Int32),
+    tadig Nullable(String),
     bundle_group_id Int32,
     bundle_group_name String,
-    tadig Nullable(String),
+    import_time Date,
     plmn Nullable(String),
-    mnc Nullable(String),
-    mcc Nullable(String)
+    mcc Nullable(String),
+    mnc Nullable(String)
 )
 ENGINE = MergeTree
 ORDER BY local_carrier_id
@@ -84,8 +88,3 @@ left join
   FROM dim.dim_Bumblebee_local_carrier_info where import_time = '$import_time') as local_carrier_info
   ON local_carrier.local_carrier_info_id = local_carrier_info.id;
 "
-
-
-
-
-
