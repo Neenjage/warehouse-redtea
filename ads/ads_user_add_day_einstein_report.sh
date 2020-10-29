@@ -10,11 +10,13 @@ Engine=MergeTree
 order by number as
 select
  toStartOfDay(addHours(register_time,8)) as register_date,
+ agent_name,
  count(*) as number
 from
 dws.dws_redtea_user
-where source = 'Einstein' and user_status = 'ACTIVE'
-group by toStartOfDay(addHours(register_time,8));
+where source = 'Einstein'
+and user_status = 'ACTIVE'
+group by toStartOfDay(addHours(register_time,8)),agent_name;
 
 drop table if exists ads.ads_user_add_day_einstein_report;
 

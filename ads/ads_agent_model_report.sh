@@ -11,7 +11,7 @@ Engine=MergeTree
 order by number as
 select
 agent_name,
-model,
+if(agent_name = 'unknown','unknown',model) as model,
 count(*) as number
 from
 dws.dws_redtea_user

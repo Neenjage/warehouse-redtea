@@ -11,7 +11,7 @@ Engine=MergeTree
 order by number as
 select
 agent_name,
-app_version,
+if(app_version = '' or app_version is null,'unknown',app_version) as app_version,
 count(*) as number
 from
 dws.dws_redtea_user

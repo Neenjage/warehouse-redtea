@@ -9,47 +9,15 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password '' --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dwd.dwd_Einstein_data_plan_detail
-(
-    data_plan_id Int32,
-    data_plan_name Nullable(String),
-    data_plan_price Nullable(Int32),
-    data_plan_status Nullable(String),
-    data_lan_update_time Nullable(DateTime),
-    data_plan_volume Nullable(Int32),
-    data_plan_expiration_days Nullable(Int32),
-    location_id Nullable(Int32),
-    currency_id Nullable(Int32),
-    promotion_id Nullable(Int32),
-    data_plan_level Nullable(Int32),
-    location_name Nullable(String),
-    location_continent Nullable(String),
-    location_remark Nullable(String),
-    location_status Nullable(String),
-    currency_name String,
-    currency_remark Nullable(String),
-    title Nullable(String),
-    status Nullable(String),
-    start_time Nullable(DateTime),
-    end_time Nullable(DateTime),
-    data_plan_group_id Int32,
-    data_plan_group_name String,
-    provider_id Nullable(Int32),
-    provider_name Nullable(String),
-    import_time String
-)
-ENGINE = MergeTree
-ORDER BY data_plan_id
-SETTINGS index_granularity = 8192;
+drop table if exists dwd.dwd_Einstein_data_plan_detail_tmp;
 
-alter table dwd.dwd_Einstein_data_plan_detail delete where import_time = '$import_time';
-
-INSERT INTO TABLE dwd.dwd_Einstein_data_plan_detail
+CREATE TABLE dwd.dwd_Einstein_data_plan_detail_tmp
+Engine=MergeTree
+order by data_plan_id as
 SELECT
     t5.*,
     t6.provider_id,
-    t6.provider_name,
-    '$import_time' AS import_time
+    t6.provider_name
 FROM
 (
     SELECT
@@ -77,6 +45,7 @@ FROM
                     data_plan.short_name AS data_plan_name,
                     data_plan.price AS data_plan_price,
                     data_plan.status AS data_plan_status,
+                    data_plan.type as data_plan_type,
                     data_plan.update_time AS data_lan_update_time,
                     data_plan.data_volume AS data_plan_volume,
                     data_plan.expiration_days AS data_plan_expiration_days,
@@ -95,6 +64,7 @@ FROM
                         short_name,
                         price,
                         status,
+                        type,
                         update_time,
                         data_volume,
                         expiration_days,
@@ -186,6 +156,10 @@ ANY LEFT JOIN
         WHERE import_time = '$import_time'
     ) AS provider ON dpp.provider_id = provider.id
 ) AS t6 ON t5.data_plan_id = t6.data_plan_id;
+
+drop table if exists dwd.dwd_Einstein_data_plan_detail;
+
+rename table dwd.dwd_Einstein_data_plan_detail_tmp to dwd.dwd_Einstein_data_plan_detail;
 "
 
 

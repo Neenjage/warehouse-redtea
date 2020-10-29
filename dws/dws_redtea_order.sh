@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 #将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password '' --multiquery --multiline --max_memory_usage 30000000000 -q"
 drop table if exists dws.dws_redtea_order_tmp;
 
 create table dws.dws_redtea_order_tmp
@@ -20,7 +20,8 @@ total2.*,
 if(cdr.total_usage is null,0,cdr.total_usage) as total_usage,
 if(cdr.cost is null,0,cdr.cost) as cost,
 if((total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost) is null,0,
-   (total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost))as net_amount
+   (total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost)) as net_amount,
+if(toDate(addHours(order_time,8)) = toDate(addHours(register_time,8)),1,0) as new_user_order_flag
 from
 (select
 total1.*,
@@ -36,6 +37,12 @@ total.*,
 if(transaction.transaction_id = 0,-2,transaction.transaction_id) as transaction_id
 FROM
 (SELECT
+t2.*,
+device.residence,
+device.register_time
+from
+dwd.dwd_Einstein_device_detail device inner join
+(SELECT
   t1.*,
   oipr.transaction_code,
   oipr.bundle_code
@@ -47,6 +54,8 @@ FROM
     order_detail.agent_name,
     order_detail.data_plan_id,
     data_plan_detail.data_plan_name,
+    data_plan_detail.data_plan_type,
+    data_plan_detail.location_remark as order_location_name,
     order_detail.imsi,
     order_detail.order_CNYamount,
     order_detail.payment_method_id,
@@ -69,6 +78,7 @@ FROM
     order_detail.activate_time,
     order_detail.expiration_time as end_time,
     order_detail.order_time,
+    order_detail.update_time,
     order_detail.order_ip as purchased_ip,
     order_detail.effective_time,
     order_detail.invalid_time
@@ -76,16 +86,24 @@ FROM dwd.dwd_Einstein_orders_detail order_detail
 left join
 (SELECT
   data_plan_id,
-  data_plan_name
+  data_plan_name,
+  data_plan_type,
+  location_remark
 FROM
-dwd.dwd_Einstein_data_plan_detail where import_time = '$import_time')  data_plan_detail
+dwd.dwd_Einstein_data_plan_detail) data_plan_detail
 on order_detail.data_plan_id = toString(data_plan_detail.data_plan_id)) t1
-left join dwd.dwd_Einstein_order_imsi_profile_relation oipr on t1.order_id = toString(oipr.order_id)
+left join dwd.dwd_Einstein_order_imsi_profile_relation oipr on t1.order_id = toString(oipr.order_id)) t2
+on t2.device_id = device.device_id
 union all
 select
+t2.*,
+users.register_time
+from
+(select
 t1.*,
-resource_detail.bundle_code
-FROM
+resource_detail.bundle_code,
+'Not_cn' as residence
+from
 (select
   order_detail.order_id,
   order_detail.source,
@@ -93,6 +111,8 @@ FROM
   order_detail.agent_name,
   toString(order_detail.day_client_resource_id) as data_plan_id,
   toString(data_plan_detail.data_plan_volume) as data_plan_name,
+  0 as data_plan_type,
+  order_detail.location_name as order_location_name,
   order_detail.imsi,
   order_detail.order_CNYamount,
   order_detail.payment_method_id,
@@ -110,6 +130,7 @@ FROM
   order_detail.start_time as activate_time,
   order_detail.end_time as end_time,
   order_detail.create_time as order_time,
+  order_detail.last_update_time as update_time,
   order_detail.ip as purchased_ip,
   order_detail.effective_time,
   order_detail.invalid_time,
@@ -128,7 +149,9 @@ left join
 transaction_code,
 bundle_code
 from dwd.dwd_Bell_imsi_resource_detail where transaction_code is not null and transaction_code != '') resource_detail
-on t1.transaction_code = resource_detail.transaction_code) total
+on t1.transaction_code = resource_detail.transaction_code) t2
+left join dwd.dwd_Nobel_users_detail users
+on t2.email = users.email)  total
 left join dwd.dwd_Bumblebee_imsi_transaction_detail transaction on total.transaction_code = transaction.transaction_code) total1
 left join
 (select
@@ -191,9 +214,3 @@ where cdr_raw.transaction_id = -1
 group by
   cdr_raw.transaction_id;
 "
-
-
-
-
-
-

@@ -104,7 +104,7 @@ SELECT
   data_plan_id,
   data_plan_name
 FROM
-dwd.dwd_Einstein_data_plan_detail where import_time = '$import_time'
+dwd.dwd_Einstein_data_plan_detail
 ) dpd on tmp1.data_plan_id = toString(dpd.data_plan_id)
 union all
 select
