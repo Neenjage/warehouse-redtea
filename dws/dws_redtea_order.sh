@@ -37,9 +37,40 @@ total.*,
 if(transaction.transaction_id = 0,-2,transaction.transaction_id) as transaction_id
 FROM
 (SELECT
-t2.*,
-device.residence,
-device.register_time
+  t2.order_id,
+  t2.source,
+  t2.agent_id as agent_id,
+  t2.agent_name,
+  t2.data_plan_id,
+  t2.data_plan_name,
+  t2.data_plan_type,
+  t2.data_plan_volume,
+  t2.order_location_name,
+  t2.imsi,
+  t2.order_CNYamount,
+  t2.payment_method_id,
+  t2.payment_method_name,
+  t2.transation_fee,
+  t2.revenue_share,
+  t2.currency_id,
+  t2.currency_name ,
+  t2.currency_CNY_rate,
+  t2.user_id,
+  t2.email,
+  t2.device_id as device_id,
+  t2.brand as brand,
+  t2.order_status,
+  t2.activate_time,
+  t2.end_time,
+  t2.order_time,
+  t2.update_time,
+  t2.purchased_ip,
+  t2.effective_time,
+  t2.invalid_time,
+  t2.transaction_code,
+  t2.bundle_code,
+  device.residence,
+  device.register_time
 from
 dwd.dwd_Einstein_device_detail device inner join
 (SELECT
@@ -55,6 +86,7 @@ FROM
     order_detail.data_plan_id,
     data_plan_detail.data_plan_name,
     data_plan_detail.data_plan_type,
+    data_plan_detail.data_plan_volume,
     data_plan_detail.location_remark as order_location_name,
     order_detail.imsi,
     order_detail.order_CNYamount,
@@ -88,6 +120,7 @@ left join
   data_plan_id,
   data_plan_name,
   data_plan_type,
+  data_plan_volume,
   location_remark
 FROM
 dwd.dwd_Einstein_data_plan_detail) data_plan_detail
@@ -112,6 +145,7 @@ from
   toString(order_detail.day_client_resource_id) as data_plan_id,
   toString(data_plan_detail.data_plan_volume) as data_plan_name,
   0 as data_plan_type,
+  data_plan_detail.data_plan_volume,
   order_detail.location_name as order_location_name,
   order_detail.imsi,
   order_detail.order_CNYamount,
