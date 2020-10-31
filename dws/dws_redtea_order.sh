@@ -214,6 +214,33 @@ drop table if exists dws.dws_redtea_order;
 
 rename table dws.dws_redtea_order_tmp to dws.dws_redtea_order;
 
+drop table if exists dws.dws_redtea_order_tmp1;
+
+create table dws.dws_redtea_order_tmp1
+Engine=MergeTree
+order by order_id as
+select
+order.* ,
+if(first_order.device_id is null,0,1) as user_first_order_flag
+from
+dws.dws_redtea_order as order
+left join
+(select
+  device_id,
+  min(order_time) as first_order_time
+from
+dws.dws_redtea_order
+where source = 'Einstein'
+and order_status not in ('REFUNDED','REFUNDING33','RESERVED')
+and order_CNYamount > 0
+and invalid_time = '2105-12-31 23:59:59'
+group by device_id) first_order
+on order.device_id = first_order.device_id and order.order_time = first_order.first_order_time;
+
+drop table if exists dws.dws_redtea_order;
+
+rename table dws.dws_redtea_order_tmp1 to dws.dws_redtea_order;
+
 alter table dws.dws_redtea_order delete where transaction_id = -1;
 
 INSERT INTO TABLE dws.dws_redtea_order(

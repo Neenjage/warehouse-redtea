@@ -14,7 +14,7 @@ select
 if(data_plan_type=1,'包天套餐',if(data_plan_type=2,'流量套餐',if(data_plan_type=3,'定向流量套餐',if(data_plan_type=5,'小时流量套餐','免费套餐')))) as data_plan_type,
  if(payment_method_name is null,'NoPay',payment_method_name) as payment_method_name,
  order_location_name,
- countDistinct(t2.device_id) as number
+ countDistinct(device_id) as number
 from
 dws.dws_redtea_order
 where source = 'Einstein'
