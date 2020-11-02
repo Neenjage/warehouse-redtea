@@ -88,13 +88,16 @@ left join
   count(*) as topup_order_count
 from
 ods.ods_Nobel_data_plan_topup_order
-where top_up_status = 'SUCCESS' and invalid_time = '2105-12-31 23:59:59'
+where top_up_status = 'SUCCESS'
+and invalid_time = '2105-12-31 23:59:59'
 group by dpo_order_no) topup_order
 on dpo.order_id = topup_order.dpo_order_no) t1
 left join
 (select
 * from
-ods.ods_Nobel_users where status = 'ACTIVE') user
+ods.ods_Nobel_users
+where status = 'ACTIVE'
+and invalid_time = '2105-12-31 23:59:59') user
 on t1.email = user.email) t3
 left join
 (select
