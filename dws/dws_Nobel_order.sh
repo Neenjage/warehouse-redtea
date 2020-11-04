@@ -21,6 +21,8 @@ select
   order.last_update_time as update_time,
   order.order_price,
   order.source_type,
+  order.location_name,
+  order.payment_method_id,
   user.register_time,
   order.pay_status,
   if(toDate(order.create_time) = toDate(user.register_time),1,0) as new_user_order_flag
@@ -43,6 +45,8 @@ select
   update_time,
   order_price,
   toString(source_type) as source_type,
+  location_name,
+  payment_method_id,
   register_time,
   toString(pay_status) as status,
   new_user_order_flag
@@ -57,6 +61,8 @@ select
   topup_order.update_time,
   topup_order.order_price,
   topup_order.source_type,
+  order.location_name,
+  order.payment_method_id,
   order.register_time,
   toString(topup_order.top_up_status) as status,
   if(toDate(topup_order.create_time) = toDate(order.register_time),1,0) as new_user_order_flag
@@ -66,7 +72,9 @@ left join
 (select
   order_id,
   email,
-  register_time
+  register_time,
+  payment_method_id,
+  location_name
 from
 dws.dws_Nobel_order_tmp
 ) as order
