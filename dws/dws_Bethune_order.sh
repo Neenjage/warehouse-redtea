@@ -76,7 +76,7 @@ top_up_order.amount,
 top_up_order.top_up_type as type,
 top_up_order.pay_status as status,
 'unknown' as Einstein_order_id,
-1 as payment_method,
+payment_mode as payment_method,
 'unknown' as order_model,
 'unknown' as order_brand,
 'unknown' as user_ip

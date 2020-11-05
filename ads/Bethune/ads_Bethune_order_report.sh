@@ -13,6 +13,11 @@ SELECT
   source,
   new_user_order_flag,
   user_first_order_flag,
+  case when payment_method = 0 then '未知支付方式'
+     when payment_method = 1 then '支付宝支付'
+     when payment_method = 2 then '微信支付'
+     else '积分兑换'
+  end as payment_type,
   toStartOfDay(addHours(create_time,8)) as order_date,
   count(*) as order_number,
   countDistinct(user_id) as user_number
@@ -23,7 +28,12 @@ AND status not in ('2','0','PAYMENT_CREATE')
 GROUP BY source,
           toStartOfDay(addHours(create_time,8)),
           new_user_order_flag,
-          user_first_order_flag;
+          user_first_order_flag,
+          case when payment_method = 0 then '未知支付方式'
+                when payment_method = 1 then '支付宝支付'
+                when payment_method = 2 then '微信支付'
+                else '积分兑换'
+          end;
 
 drop table if exists ads.ads_Bethune_order_report;
 
