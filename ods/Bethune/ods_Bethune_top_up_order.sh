@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists ods.ods_Bethune_top_up_order_tmp;
 
 create table ods.ods_Bethune_top_up_order_tmp

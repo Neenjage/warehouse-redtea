@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 DROP TABLE if exists dwd.dwd_Bumblebee_imsi_transaction_detail_tmp;
 
 CREATE TABLE dwd.dwd_Bumblebee_imsi_transaction_detail_tmp

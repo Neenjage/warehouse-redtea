@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 #一个transaction_id对应多个order_id说明该订单为免费订单,将所有订单聚合为-1
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dwd.dwd_Einstein_order_imsi_profile_relation_tmp;
 
 create table dwd.dwd_Einstein_order_imsi_profile_relation_tmp

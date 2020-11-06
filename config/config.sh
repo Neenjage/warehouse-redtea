@@ -1,4 +1,4 @@
 #!/bin/bash
 
-user=default
-password=''
+user=redtea
+password=redtea@clickhouse86868

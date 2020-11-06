@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 #generate_time 与自增id基本一致的顺序性
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bumblebee_imsi_transaction
 (
     imsi_transaction_id Int32,

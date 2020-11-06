@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS ods.ods_Bethune_orders
 ENGINE = MergeTree
 ORDER BY id AS

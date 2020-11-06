@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists ads.ads_user_add_day_nobel_report_tmp;
 
 create table ads.ads_user_add_day_nobel_report_tmp

@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 create table if not exists ads.ads_Bumblebee_imsi_report
 (imsi String,
 usag float)

@@ -2,7 +2,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dwd.dwd_Nobel_topup_package_detail_tmp;
 
 create table dwd.dwd_Nobel_topup_package_detail_tmp

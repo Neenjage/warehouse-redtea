@@ -3,7 +3,7 @@
 source /home/ops/warehouse-redtea/config/config.sh
 
 #取每天最新的数据
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists ods.ods_Bell_imsi_resource_tmp;
 
 create table ods.ods_Bell_imsi_resource_tmp

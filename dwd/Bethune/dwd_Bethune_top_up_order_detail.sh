@@ -8,7 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dwd.dwd_Bethune_top_up_order_detail_tmp;
 
 create table dwd.dwd_Bethune_top_up_order_detail_tmp

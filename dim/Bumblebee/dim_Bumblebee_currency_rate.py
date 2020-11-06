@@ -26,7 +26,7 @@ if __name__ == '__main__':
     if( len(sys.argv) > 1 ):
         import_time = sys.argv[1]
 
-    client = Client(host='127.0.0.1',database='dim',user='default',password='')
+    client = Client(host='127.0.0.1',database='dim',user='redtea',password='redtea@clickhouse86868')
 
     # update表中数据保证幂等性
     updateSQL = '''alter table dim_Bumblebee_currency_rate delete where import_time = '{0}' '''.format(import_time)
@@ -53,6 +53,6 @@ if __name__ == '__main__':
     values = values[:-1]
 
     sql = '''INSERT INTO TABLE dim_Bumblebee_currency_rate values''' + values
-    client = Client(host='127.0.0.1',database='dim',user='default',password='')
+    client = Client(host='127.0.0.1',database='dim',user='redtea',password='redtea@clickhouse86868')
     ans = client.execute(sql)
     client.disconnect()

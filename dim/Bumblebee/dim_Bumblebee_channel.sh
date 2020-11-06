@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_channel
 (
     id Int32,

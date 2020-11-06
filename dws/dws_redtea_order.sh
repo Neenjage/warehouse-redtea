@@ -9,7 +9,7 @@ if [ -n "$1" ];then
 fi
 
 #将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
-clickhouse-client --user $user --password '' --multiquery --multiline --max_memory_usage 30000000000 -q"
+clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
 drop table if exists dws.dws_redtea_order_tmp;
 
 create table dws.dws_redtea_order_tmp

@@ -4,7 +4,7 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
-clickhouse-client --user $user --password '' --multiquery --multiline -q"
+clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE if not exists ods.ods_Bumblebee_imsi_transaction_cdr_raw
 (
     imsi Nullable(String),
