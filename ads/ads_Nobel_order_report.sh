@@ -127,7 +127,7 @@ FROM
 ) AS t7;
 "
 
-for((i=1;i<=$date_number;i++));
+for((i=0;i<=$date_number;i++));
 do
   date_time=`date -d "$import_time -$i days" +"%Y-%m-%d"`
   clickhouse-client --user $user --password $password --multiquery --multiline -q"
