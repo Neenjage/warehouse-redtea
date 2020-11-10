@@ -18,6 +18,7 @@ SELECT
        when payment_method = 2 then '微信支付'
        else '积分兑换'
   end as payment_type,
+  data_plan_name,
   toStartOfDay(addHours(create_time,8)) as order_date,
   SUM(amount)/100 AS total_amount,
   count(*) as order_number
@@ -33,7 +34,8 @@ case when payment_method = 0 then '未知支付方式'
      when payment_method = 1 then '支付宝支付'
      when payment_method = 2 then '微信支付'
      else '积分兑换'
-end;
+end,
+data_plan_name;
 
 drop table if exists ads.ads_Bethune_sales_report;
 

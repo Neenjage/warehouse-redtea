@@ -23,6 +23,7 @@ SELECT
      when payment_method = 2 then '微信支付'
      else '积分兑换'
   end as payment_type,
+  data_plan_name,
   toStartOfDay(addHours(create_time,8)) as order_date,
   count(*) as order_number,
   countDistinct(user_id) as user_number
@@ -39,7 +40,8 @@ GROUP BY
           when payment_method = 1 then '支付宝支付'
           when payment_method = 2 then '微信支付'
           else '积分兑换'
-    end;
+    end,
+    data_plan_name;
 
 drop table if exists ads.ads_Bethune_order_report_tmp1;
 
@@ -50,13 +52,14 @@ order by source as
       t1.source as source,
       t2.payment_type as payment_type,
       t3.new_user_order_flag as new_user_order_flag,
-      t4.user_first_order_flag as user_first_order_flag
+      t4.user_first_order_flag as user_first_order_flag,
+      t1.data_plan_name as data_plan_name
   FROM
   (
-      SELECT source
+      SELECT source,data_plan_name
       FROM dws.dws_Bethune_order AS dbo
       WHERE (type != '1') AND (addHours(create_time, 8) < toStartOfDay(toDateTime(addHours(now(), 8)))) AND (status NOT IN ('2', '0', 'PAYMENT_CREATE'))
-      GROUP BY source
+      GROUP BY source,data_plan_name
   ) AS t1
   ,
   (
@@ -91,6 +94,7 @@ do
     new_user_order_flag,
     user_first_order_flag,
     payment_type,
+    data_plan_name,
     toStartOfDay(toDateTime('$date_time 00:00:00')) as order_date,
     0 as order_number,
     0 as user_number
@@ -111,6 +115,7 @@ select
     new_user_order_flag,
     user_first_order_flag,
     payment_type,
+    data_plan_name,
     order_date,
     sum(order_number) as order_number,
     sum(user_number) as user_number
@@ -121,6 +126,7 @@ group by
     new_user_order_flag,
     user_first_order_flag,
     payment_type,
+    data_plan_name,
     order_date;
 
 drop table if exists ads.ads_Bethune_order_report;

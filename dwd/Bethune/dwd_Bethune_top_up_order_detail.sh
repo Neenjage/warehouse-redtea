@@ -22,6 +22,7 @@ select
   pay_status,
   top_up_type,
   amount,
+  product_id,
   product_name,
   create_time
 from

@@ -18,6 +18,7 @@ SELECT
        when payment_method = 2 then '微信支付'
        else '积分兑换'
   end as payment_type,
+  data_plan_name,
   toStartOfDay(addHours(create_time,8)) as order_date,
   SUM(amount)/100 AS total_amount,
   count(*) as order_number
@@ -33,7 +34,8 @@ case when payment_method = 0 then '未知支付方式'
      when payment_method = 1 then '支付宝支付'
      when payment_method = 2 then '微信支付'
      else '积分兑换'
-end;
+end,
+data_plan_name;
 
 drop table if exists ads.ads_Bethune_refund_report_tmp1;
 
@@ -44,13 +46,14 @@ SELECT
     t1.source AS source,
     t2.new_user_order_flag AS new_user_order_flag,
     t3.user_first_order_flag AS user_first_order_flag,
-    t4.payment_type AS payment_type
+    t4.payment_type AS payment_type,
+    t1.data_plan_name as data_plan_name
 FROM
 (
-    SELECT source
+    SELECT source,data_plan_name
     FROM dws.dws_Bethune_order
     WHERE (type != '1') AND (addHours(create_time, 8) < toStartOfDay(toDateTime(addHours(now(), 8)))) AND (status IN ('6', '7', 'REFUNDED'))
-    GROUP BY source
+    GROUP BY source,data_plan_name
 ) AS t1
 ,
 (
@@ -86,6 +89,7 @@ do
     new_user_order_flag,
     user_first_order_flag,
     payment_type,
+    data_plan_name,
     toStartOfDay(toDateTime('$date_time 00:00:00')) as order_date,
     0 AS total_amount,
     0 as order_number
@@ -105,6 +109,7 @@ select
     new_user_order_flag,
     user_first_order_flag,
     payment_type,
+    data_plan_name,
     order_date,
     sum(total_amount) as total_amount,
     sum(order_number) as order_number
@@ -115,6 +120,7 @@ group by
     new_user_order_flag,
     user_first_order_flag,
     payment_type,
+    data_plan_name,
     order_date;
 
 drop table if exists ads.ads_Bethune_refund_report;

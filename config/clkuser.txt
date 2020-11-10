@@ -1,3 +1,4 @@
+#superset 用户
 redtea redteaadmin@redtea66668888  admin权限
 redteamobile redteamobile@redtea66668888
 redteago redteago@redtea22030405
@@ -5,3 +6,9 @@ duoduo duoduo@redtea35798
 report FooZikue8z
 unicom BXawIU3QCZ
 redteaapp redteaapp@redtea35786
+
+#clickhouse 用户
+
+redteamobile  123456  只读用户
+redtea redtea@clickhouse86868 admin用户
+default default123456redtea  default用户
