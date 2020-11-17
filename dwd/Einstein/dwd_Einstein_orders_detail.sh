@@ -195,7 +195,7 @@ LEFT JOIN
         type
     FROM dim.dim_Einstein_order_channel
     WHERE import_time = '$import_time'
-) AS order_channel ON t7.channel_id = order_channel.id;
+) AS order_channel ON toInt32(t7.channel_id) = order_channel.id;
 
 drop table if exists dwd.dwd_Einstein_orders_detail;
 

@@ -15,6 +15,10 @@ create table dws.dws_Bethune_order_tmp
 Engine=MergeTree
 order by id as
 select
+t.*,
+Einstein.end_time
+from
+(select
 	order.id,
 	order.source,
 	order.user_id,
@@ -86,7 +90,15 @@ payment_mode as payment_method,
 from
 dwd.dwd_Bethune_top_up_order_detail top_up_order) as order
 left join dwd.dwd_Bethune_user_detail as user
-on order.user_id = user.user_id;
+on order.user_id = user.user_id ) t
+left join
+(select
+order_no,
+end_time
+from
+dwd.dwd_Einstein_orders_detail
+where invalid_time = '2105-12-31 23:59:59') as  Einstein
+on t.Einstein_order_id  = Einstein.order_no;
 
 drop table if exists dws.dws_Bethune_order;
 
@@ -122,4 +134,3 @@ drop table if exists dws.dws_Bethune_order;
 
 rename table dws.dws_Bethune_order_tmp to dws.dws_Bethune_order;
 "
-
