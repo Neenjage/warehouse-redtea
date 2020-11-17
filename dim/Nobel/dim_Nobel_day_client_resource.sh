@@ -9,31 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Nobel_day_client_resource
-(
-    id Int32,
-    day_id Nullable(Int32),
-    support_client String,
-    package_level Int32,
-    resource_id Int32,
-    valid_day Int32,
-    support_cdr Int8,
-    status String,
-    update_time Nullable(DateTime),
-    create_time Nullable(DateTime),
-    description Nullable(String),
-    price Nullable(Int32),
-    original_price Nullable(Int32),
-    promotion_id Int32,
-    import_time Date DEFAULT toDate(now())
-)
+drop table if exists dim.dim_Nobel_day_client_resource_tmp;
+
+CREATE TABLE dim.dim_Nobel_day_client_resource_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-ALTER TABLE dim.dim_Nobel_day_client_resource delete where import_time = '$import_time';
-
-INSERT INTO dim.dim_Nobel_day_client_resource
+ORDER BY id as
 SELECT
     id,
     day_id,
@@ -49,7 +29,10 @@ SELECT
     price,
     original_price,
     promotion_id,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'day_client_resource', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
-"
 
+drop table if exists dim.dim_Nobel_day_client_resource;
+
+rename table dim.dim_Nobel_day_client_resource_tmp to dim.dim_Nobel_day_client_resource;
+"

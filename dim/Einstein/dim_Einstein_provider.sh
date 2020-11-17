@@ -9,25 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Einstein_provider
-(
-    id Int32,
-    name Nullable(String),
-    status Nullable(String),
-    ws_url Nullable(String),
-    provider_key Nullable(String),
-    token Nullable(String),
-    access_key Nullable(String),
-    secret_key Nullable(String),
-    import_time Date
-)
+drop table if exists dim.dim_Einstein_provider_tmp;
+
+CREATE TABLE dim.dim_Einstein_provider_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-alter table dim.dim_Einstein_provider delete where import_time = '$import_time';
-
-INSERT INTO dim.dim_Einstein_provider
+ORDER BY id as
 SELECT
     id,
     name,
@@ -37,6 +23,10 @@ SELECT
     token,
     access_key,
     secret_key,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'provider', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
+
+drop table if exists dim.dim_Einstein_provider;
+
+rename table dim.dim_Einstein_provider_tmp to dim.dim_Einstein_provider;
 "

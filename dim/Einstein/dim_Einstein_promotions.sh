@@ -9,35 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE if not exists dim.dim_Einstein_promotions
-(
-    id Int32,
-    title Nullable(String),
-    sub_title Nullable(String),
-    url_pic Nullable(String),
-    url_html Nullable(String),
-    share_image Nullable(String),
-    promotion_rule Nullable(String),
-    explanation Nullable(String),
-    promotion_type Nullable(String),
-    status Nullable(String),
-    start_time Nullable(DateTime),
-    end_time Nullable(DateTime),
-    frequency Nullable(Int32),
-    strategy_id Nullable(Int32),
-    strategy_type Nullable(String),
-    share_title Nullable(String),
-    share_content Nullable(String),
-    share_url Nullable(String),
-    import_time Date
-)
+drop table if exists dim.dim_Einstein_promotions_tmp;
+
+CREATE TABLE dim.dim_Einstein_promotions_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-alter table dim.dim_Einstein_promotions delete where import_time = '$import_time';
-
-INSERT INTO TABLE dim.dim_Einstein_promotions
+ORDER BY id as
 SELECT
     id,
     title,
@@ -57,7 +33,11 @@ SELECT
     share_title,
     share_content,
     share_url,
-    '$import_time'
+    '$import_time' as import_time
 FROM
 mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'promotions', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
+
+drop table if exists dim.dim_Einstein_promotions;
+
+rename table dim.dim_Einstein_promotions_tmp to dim.dim_Einstein_promotions;
 "

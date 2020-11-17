@@ -9,33 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_local_carrier
-(
-    local_carrier_id Int32,
-    location_id Nullable(Int32),
-    location_code Nullable(String),
-    carrier_id Nullable(Int32),
-    carrier_name Nullable(String),
-    local_carrier_info_id Nullable(Int32),
-    local_carrier_name Nullable(String),
-    location_name Nullable(String),
-    create_time Nullable(DateTime),
-    last_update_time Nullable(DateTime),
-    detail Nullable(String),
-    rat Nullable(Int32),
-    status Nullable(Int32),
-    tadig Nullable(String),
-    bundle_group_id Int32,
-    bundle_group_name String,
-    import_time Date
-)
-ENGINE = MergeTree
-ORDER BY local_carrier_id
-SETTINGS index_granularity = 8192;
+drop table if exists dim.dim_Bumblebee_local_carrier_tmp;
 
-alter table dim.dim_Bumblebee_local_carrier delete where import_time = '$import_time';
-
-insert into table dim.dim_Bumblebee_local_carrier
+CREATE TABLE dim.dim_Bumblebee_local_carrier_tmp
+Engine=MergeTree
+ORDER BY local_carrier_id as
 select
     local_carrier_id,
     location_id,
@@ -53,6 +31,10 @@ select
     tadig,
     bundle_group_id,
     bundle_group_name,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'local_carrier', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
+
+drop table if exists dim.dim_Bumblebee_local_carrier;
+
+rename table dim.dim_Bumblebee_local_carrier_tmp to dim.dim_Bumblebee_local_carrier;
 "

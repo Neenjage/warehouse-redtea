@@ -71,6 +71,7 @@ FROM
                                 orders.agent_id AS agent_id,
                                 orders.provider_id AS provider_id,
                                 orders.payment_method_id AS payment_method_id,
+                                orders.end_time as end_time,
                                 orders.expiration_time AS expiration_time,
                                 orders.currency_id AS currency_id,
                                 orders.refund_reason AS refund_reason,
@@ -97,6 +98,7 @@ FROM
                                     agent_id,
                                     provider_id,
                                     payment_method_id,
+                                    end_time,
                                     expiration_time,
                                     uid,
                                     if(currency_id is null,1,currency_id) as currency_id,
@@ -199,8 +201,3 @@ drop table if exists dwd.dwd_Einstein_orders_detail;
 
 rename table dwd.dwd_Einstein_orders_detail_tmp to dwd.dwd_Einstein_orders_detail;
 "
-
-
-
-
-

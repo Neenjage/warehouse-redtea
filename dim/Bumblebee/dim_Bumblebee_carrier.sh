@@ -9,26 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_carrier
-(
-    id Int32,
-    name Nullable(String),
-    remark Nullable(String),
-    implementation Nullable(String),
-    access_key Nullable(String),
-    secret_key Nullable(String),
-    status Nullable(String),
-    channel_id Nullable(Int32),
-    support_multi_bundle Nullable(Int8),
-    import_time Date DEFAULT toDate(now())
-)
+drop table if exists dim.dim_Bumblebee_carrier_tmp;
+
+CREATE TABLE IF NOT EXISTS dim.dim_Bumblebee_carrier_tmp
 ENGINE = MergeTree()
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-ALTER TABLE dim.dim_Bumblebee_carrier DELETE WHERE import_time = '$import_time';
-
-INSERT INTO dim.dim_Bumblebee_carrier
+ORDER BY id as
 SELECT
     id,
     name,
@@ -39,7 +24,10 @@ SELECT
     status,
     channel_id,
     support_multi_bundle,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'carrier', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
-"
 
+drop table if exists dim.dim_Bumblebee_carrier;
+
+rename table dim.dim_Bumblebee_carrier_tmp to dim.dim_Bumblebee_carrier;
+"

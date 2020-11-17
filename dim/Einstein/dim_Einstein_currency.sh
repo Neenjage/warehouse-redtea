@@ -9,27 +9,21 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Einstein_currency
-(
-    id Int32,
-    name String,
-    symbol Nullable(String),
-    remark Nullable(String),
-    import_time Date
-)
+drop table if exists dim.dim_Einstein_currency_tmp;
+
+CREATE TABLE dim.dim_Einstein_currency_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-alter table dim.dim_Einstein_currency delete where import_time = '$import_time';
-
-INSERT INTO TABLE dim.dim_Einstein_currency
+ORDER BY id as
 SELECT
   id,
   name,
   symbol,
   remark,
-  '$import_time'
+  '$import_time' as import_time
 FROM
 mysql('ro-einstein-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Einstein', 'currency', 'redtea', 'DRKn3DNX3ohlsOTQWh4INrCEbgabsn6c');
+
+drop table if exists dim.dim_Einstein_currency;
+
+rename table dim.dim_Einstein_currency_tmp to dim.dim_Einstein_currency;
 "

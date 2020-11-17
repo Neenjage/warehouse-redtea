@@ -9,26 +9,20 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Nobel_currency
-(
-    id Int32,
-    name String,
-    symbol String,
-    remark String,
-    import_time Date
-)
+drop table if exists dim.dim_Nobel_currency_tmp;
+
+CREATE TABLE dim.dim_Nobel_currency_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-ALTER table dim.dim_Nobel_currency delete where import_time = '$import_time';
-
-INSERT INTO dim.dim_Nobel_currency
+ORDER BY id as
 SELECT
     id,
     name,
     symbol,
     remark,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'currency', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
+
+drop table if exists dim.dim_Nobel_currency;
+
+rename table dim.dim_Nobel_currency_tmp to dim.dim_Nobel_currency;
 "

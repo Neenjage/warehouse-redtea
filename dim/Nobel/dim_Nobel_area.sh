@@ -9,28 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE if not exists dim.dim_Nobel_area
-(
-    id Int32,
-    name String,
-    logo_url String,
-    status String,
-    sort_no Int32,
-    continent_id Int32,
-    top Int8,
-    background_image_url String,
-    iphone_logo_url String,
-    pixel_logo_url String,
-    timezone_fix Int32,
-    import_time Date DEFAULT toDate(now())
-)
+drop table if exists dim.dim_Nobel_area_tmp;
+
+CREATE TABLE dim.dim_Nobel_area_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-ALTER TABLE dim.dim_Nobel_area delete where import_time = '$import_time';
-
-INSERT INTO dim.dim_Nobel_area
+ORDER BY id as
 SELECT
     id,
     name,
@@ -43,6 +26,10 @@ SELECT
     iphone_logo_url,
     pixel_logo_url,
     timezone_fix,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'area', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
+
+drop table if exists dim.dim_Nobel_area;
+
+rename table dim.dim_Nobel_area_tmp to dim.dim_Nobel_area;
 "

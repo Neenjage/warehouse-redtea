@@ -9,34 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dwd.dwd_Bumblebee_local_carrier_detail
-(
-    local_carrier_id Int32,
-    location_id Nullable(Int32),
-    location_code Nullable(String),
-    carrier_id Nullable(Int32),
-    carrier_name Nullable(String),
-    local_carrier_info_id Nullable(Int32),
-    local_carrier_name Nullable(String),
-    location_name Nullable(String),
-    create_time Nullable(DateTime),
-    last_update_time Nullable(DateTime),
-    status Nullable(Int32),
-    tadig Nullable(String),
-    bundle_group_id Int32,
-    bundle_group_name String,
-    import_time Date,
-    plmn Nullable(String),
-    mcc Nullable(String),
-    mnc Nullable(String)
-)
+drop table if exists dwd.dwd_Bumblebee_local_carrier_detail_tmp;
+
+CREATE TABLE dwd.dwd_Bumblebee_local_carrier_detail_tmp
 ENGINE = MergeTree
-ORDER BY local_carrier_id
-SETTINGS index_granularity = 8192;
-
-alter table dwd.dwd_Bumblebee_local_carrier_detail delete where import_time = '$import_time';
-
-INSERT INTO TABLE dwd.dwd_Bumblebee_local_carrier_detail
+ORDER BY local_carrier_id as
 SELECT
     local_carrier.*,
     local_carrier_info.plmn as plmn,
@@ -87,4 +64,8 @@ left join
   mnc
   FROM dim.dim_Bumblebee_local_carrier_info where import_time = '$import_time') as local_carrier_info
   ON local_carrier.local_carrier_info_id = local_carrier_info.id;
+
+drop table if exists dwd.dwd_Bumblebee_local_carrier_detail;
+
+rename table dwd.dwd_Bumblebee_local_carrier_detail_tmp to dwd.dwd_Bumblebee_local_carrier_detail;
 "

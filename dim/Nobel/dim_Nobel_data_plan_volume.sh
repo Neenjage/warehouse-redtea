@@ -9,35 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE IF NOT EXISTS dim.dim_Nobel_data_plan_volume
-(
-    id Int32,
-    area_id Int32,
-    volume Int32,
-    language_code String,
-    resource_id Int32,
-    data_plan_info String,
-    status String,
-    sort_no Int32,
-    apn String,
-    activate String,
-    network String,
-    local_operator String,
-    use_method String,
-    update_time Nullable(DateTime),
-    create_time Nullable(DateTime),
-    timezone_fix Int32,
-    currency_id Int32,
-    coverage_area String,
-    import_time Date DEFAULT toDate(now())
-)
+drop table if exists dim.dim_Nobel_data_plan_volume_tmp;
+
+CREATE TABLE IF NOT EXISTS dim.dim_Nobel_data_plan_volume_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-ALTER table dim.dim_Nobel_data_plan_volume delete where import_time = '$import_time';
-
-INSERT INTO dim.dim_Nobel_data_plan_volume
+ORDER BY id as
 SELECT
     id,
     area_id,
@@ -57,6 +33,10 @@ SELECT
     timezone_fix,
     currency_id,
     coverage_area,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('bayer-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Nobel', 'data_plan_volume', 'redtea-ro', 'tOIgwoP1sq94CpM2uVdjxkAmhGokPVG13');
+
+drop table if exists dim.dim_Nobel_data_plan_volume;
+
+rename table dim.dim_Nobel_data_plan_volume_tmp to dim.dim_Nobel_data_plan_volume;
 "

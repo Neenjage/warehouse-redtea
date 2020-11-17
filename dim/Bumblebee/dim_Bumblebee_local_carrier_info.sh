@@ -9,26 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-CREATE TABLE if not exists dim.dim_Bumblebee_local_carrier_info
-(
-    id Int32,
-    local_carrier_name Nullable(String),
-    local_carrier_english_name Nullable(String),
-    plmn Nullable(String),
-    mnc Nullable(String),
-    mcc Nullable(String),
-    detail Nullable(String),
-    net_abbr Nullable(String),
-    tadig Nullable(String),
-    import_time Date
-)
+drop table if exists dim.dim_Bumblebee_local_carrier_info_tmp;
+
+CREATE TABLE dim.dim_Bumblebee_local_carrier_info_tmp
 ENGINE = MergeTree
-ORDER BY id
-SETTINGS index_granularity = 8192;
-
-alter table dim.dim_Bumblebee_local_carrier_info delete where import_time = '$import_time';
-
-insert into table dim.dim_Bumblebee_local_carrier_info
+ORDER BY id as
 select
     id,
     local_carrier_name,
@@ -39,7 +24,11 @@ select
     detail,
     net_abbr,
     tadig,
-    '$import_time'
+    '$import_time' as import_time
 FROM mysql('ro-bumblebee-prod.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'Newton', 'local_carrier_info', 'redtea-ro', 'TecirEk8ph2jukapH83jcefaqAfa4Gpcg');
+
+drop table if exists dim.dim_Bumblebee_local_carrier_info;
+
+rename table dim.dim_Bumblebee_local_carrier_info_tmp to dim.dim_Bumblebee_local_carrier_info;
 "
 

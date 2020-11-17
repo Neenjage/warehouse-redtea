@@ -9,31 +9,11 @@ if [ -n "$1" ];then
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-create table if not exists dwd.dwd_Bumblebee_bundle_detail
-(
-  bundle_id Int32,
-  bundle_name Nullable(String),
-  bundle_code Nullable(String),
-  bundle_data_volume Nullable(Int32),
-  bundle_location Nullable(String),
-  bundle_enable_time Nullable(DateTime),
-  carrier_id Int32,
-  carrier_name Nullable(String),
-  carrier_status Nullable(String),
-  channel_id Int32,
-  channel_name Nullable(String),
-  channel_country Nullable(String),
-  bundle_group_id Int16,
-  bundle_group_name Nullable(String),
-  import_time Date
-)
+drop table if exists dwd.dwd_Bumblebee_bundle_detail_tmp;
+
+create table dwd.dwd_Bumblebee_bundle_detail_tmp
 Engine=MergeTree
-order by bundle_id
-SETTINGS index_granularity = 8192;
-
-alter table dwd.dwd_Bumblebee_bundle_detail delete where import_time = '$import_time';
-
-INSERT INTO TABLE dwd.dwd_Bumblebee_bundle_detail
+order by bundle_id as
 SELECT
     t2.bundle_id,
     t2.bundle_name,
@@ -49,7 +29,7 @@ SELECT
     t2.channel_country,
     t3.bundle_group_id,
     t3.bundle_group_name,
-    '$import_time'
+    '$import_time' as import_time
 FROM
 (
     SELECT
@@ -129,5 +109,9 @@ LEFT JOIN
       where import_time = '$import_time') AS bg
     ON bgd.bundle_group_id = bg.bundle_group_id
 ) AS t3 ON t2.bundle_id = t3.bundle_id;
+
+drop table if exists dwd.dwd_Bumblebee_bundle_detail;
+
+rename table dwd.dwd_Bumblebee_bundle_detail_tmp to dwd.dwd_Bumblebee_bundle_detail;
 "
 
