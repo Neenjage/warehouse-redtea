@@ -28,6 +28,7 @@ from
 	order.order_device,
 	order.order_no,
 	order.create_time,
+	order.update_time,
 	order.count,
 	order.amount,
 	order.type,
@@ -37,6 +38,9 @@ from
 	order.order_model,
 	order.order_brand,
 	order.user_ip,
+	order.payment_status,
+	order.payment_order_id,
+	order.payment_time,
 	user.user_status,
 	user.create_time as register_time,
 	user.login_time,
@@ -57,6 +61,7 @@ from
 	order.device_id as order_device,
 	order.order_no,
 	order.create_time,
+	order.update_time,
 	order.count,
 	order.amount,
 	toString(order.type) as type,
@@ -65,7 +70,10 @@ from
   order.payment_method,
 	order.model as order_model,
 	order.brand as order_brand,
-	order.user_ip
+	order.user_ip,
+	order.payment_status,
+	order.payment_order_id,
+	order.payment_time
 from dwd.dwd_Bethune_order_detail as order
 union all
 select
@@ -78,6 +86,7 @@ top_up_order.product_name as data_plan_name,
 'unknown' as order_device,
 'unknown' as order_no,
 top_up_order.create_time,
+top_up_order.update_time,
 1 as count,
 top_up_order.amount,
 top_up_order.top_up_type as type,
@@ -86,7 +95,10 @@ top_up_order.pay_status as status,
 payment_mode as payment_method,
 'unknown' as order_model,
 'unknown' as order_brand,
-'unknown' as user_ip
+'unknown' as user_ip,
+top_up_order.payment_status,
+top_up_order.payment_order_id,
+top_up_order.payment_time
 from
 dwd.dwd_Bethune_top_up_order_detail top_up_order) as order
 left join dwd.dwd_Bethune_user_detail as user

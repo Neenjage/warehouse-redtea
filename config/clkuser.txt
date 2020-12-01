@@ -6,6 +6,7 @@ duoduo duoduo@redtea35798
 report FooZikue8z
 unicom BXawIU3QCZ
 redteaapp redteaapp@redtea35786
+finance finance@redtea123456
 
 #clickhouse 用户
 

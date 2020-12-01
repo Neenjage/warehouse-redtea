@@ -171,7 +171,8 @@ FROM
           currency_name.id,
           currency_name.name,
           currency_name.remark,
-          currency_rate.CNY_rate
+          currency_rate.CNY_rate,
+          currency_rate.import_time
         FROM
             (SELECT
                 id,
@@ -182,11 +183,11 @@ FROM
         left join
             (select
               name,
-              CNY_rate
-            FROM dim.dim_Bumblebee_currency_rate
-            WHERE import_time = '$import_time') currency_rate
+              CNY_rate,
+              toDateTime(concat(toString(import_time), ' 00:00:00')) AS import_time
+            FROM dim.dim_Bumblebee_currency_rate) currency_rate
         ON currency_name.name = currency_rate.name
-    ) AS currency ON t6.currency_id = currency.id
+    ) AS currency ON t6.currency_id = currency.id and toStartOfDay(addHours(t6.end_time,8)) = currency.import_time
 ) AS t7
 LEFT JOIN
 (

@@ -18,18 +18,26 @@ select
   toString(order.order_id) as order_id,
   order.email,
   order.create_time,
+  order.end_time,
   order.last_update_time as update_time,
   order.order_price,
+  order.order_CNYamount,
   order.source_type,
   order.location_name,
   order.payment_method_id,
+  order.payment_status,
+  order.payment_time,
   user.register_time,
   order.pay_status,
   if(toDate(order.create_time) = toDate(user.register_time),1,0) as new_user_order_flag
 from
 dwd.dwd_Nobel_orders_detail as order
 left join
-dwd.dwd_Nobel_users_detail as user on order.email = user.email
+(select
+*
+from
+dwd.dwd_Nobel_users_detail
+where email != '') as user on order.email = user.email
 where order.invalid_time = '2105-12-31 23:59:59';
 
 drop table if exists dws.dws_Nobel_order_tmp1;
@@ -42,11 +50,15 @@ select
   order_id,
   email,
   create_time,
+  end_time,
   update_time,
   order_price,
+  order_CNYamount,
   toString(source_type) as source_type,
   location_name,
   payment_method_id,
+  payment_status,
+  payment_time,
   register_time,
   toString(pay_status) as status,
   new_user_order_flag
@@ -58,11 +70,15 @@ select
   toString(topup_order.dpo_order_no) as order_id,
   order.email,
   topup_order.create_time,
+  topup_order.create_time as end_time,
   topup_order.update_time,
   topup_order.order_price,
+  topup_order.order_CNYamount,
   topup_order.source_type,
   order.location_name,
   order.payment_method_id,
+  topup_order.payment_status,
+  topup_order.payment_time,
   order.register_time,
   toString(topup_order.top_up_status) as status,
   if(toDate(topup_order.create_time) = toDate(order.register_time),1,0) as new_user_order_flag

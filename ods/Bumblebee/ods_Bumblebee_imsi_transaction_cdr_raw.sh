@@ -57,7 +57,7 @@ SELECT
     country ,
     price ,
     plmn ,
-    toDate(start_time)
+    toDate(end_time)
 FROM mysql('db-redtea-darwin.c8vjxxrqkntk.ap-southeast-1.rds.amazonaws.com:3306', 'darwin', 'imsi_transaction_cdr_raw', 'darwin', 'QituhqJvF2QlNw01hdjxr0wqUkkD8YmCd')
 WHERE seq_key >
 (
@@ -65,5 +65,3 @@ WHERE seq_key >
     FROM ods.ods_Bumblebee_imsi_transaction_cdr_raw
 );
 "
-
-

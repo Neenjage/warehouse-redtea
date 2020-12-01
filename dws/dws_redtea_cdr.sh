@@ -50,6 +50,7 @@ from
     bundle_code,
     merchant_id,
     country,
+    carrier,
     plmn as plmn_code,
     location_code,
     start_time,
