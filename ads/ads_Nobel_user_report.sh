@@ -10,12 +10,14 @@ create table ads.ads_Nobel_user_report_tmp
 Engine=MergeTree
 order by user_number as
 select
+  source_type,
   toStartOfDay(register_time) as register_date,
   count(user_id) as user_number
 from dws.dws_Nobel_user
 where user_status = 'ACTIVE'
 and register_time > '2020-02-22 23:59:59'
-group by toStartOfDay(register_time);
+group by toStartOfDay(register_time),
+source_type;
 
 drop table if exists ads.ads_Nobel_user_report;
 

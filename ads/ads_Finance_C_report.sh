@@ -2,6 +2,13 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
+import_time=`date +%F`
+
+if [ -n "$1" ];then
+  import_time=$1
+fi
+
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE if not exists ads.ads_Finance_C_report
 (
@@ -17,7 +24,7 @@ ENGINE = MergeTree
 ORDER BY company
 SETTINGS index_granularity = 8192;
 
-TRUNCATE TABLE ads.ads_Finance_C_report;
+Alter TABLE ads.ads_Finance_C_report delete where order_month = toString(toYYYYMM(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))));
 
 INSERT into table ads.ads_Finance_C_report
 select
@@ -60,8 +67,8 @@ dws.dws_redtea_order drot
 where  source = 'Einstein'
 and order_status not in ('REFUNDED','REFUNDING','RESERVED')
 and invalid_time = '2105-12-31 23:59:59'
-and end_time >= '2019-12-31 16:00:00'
-and end_time < '2020-11-30 16:00:00'
+and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
 and order_CNYamount > 0.1) t
 group by t.company,order_month) t1
 left join
@@ -85,8 +92,8 @@ and order_status not in ('REFUNDED','REFUNDING','RESERVED')
 and invalid_time = '2105-12-31 23:59:59'
 and payment_method_id = 4
 and order_CNYamount > 0.1
-and end_time >= '2019-12-31 16:00:00'
-and end_time < '2020-11-30 16:00:00'
+and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
 group by
  company,
  order_month) t2
@@ -113,8 +120,8 @@ and order_status not in ('REFUNDED','REFUNDING','RESERVED')
 and invalid_time = '2105-12-31 23:59:59'
 and payment_method_id != 4
 and order_CNYamount > 0.1
-and end_time >= '2019-12-31 16:00:00'
-and end_time < '2020-11-30 16:00:00'
+and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
 group by
  company,
  order_month
@@ -141,8 +148,8 @@ where  source = 'Einstein'
 and order_status not in ('REFUNDED','REFUNDING','RESERVED')
 and invalid_time = '2105-12-31 23:59:59'
 and order_CNYamount > 0.1
-and end_time >= '2019-12-31 16:00:00'
-and end_time < '2020-11-30 16:00:00'
+and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
 group by
   company,
   order_month
@@ -179,11 +186,11 @@ from
   WHERE type != '1'
   AND ((status not in ('0','1,''2')
         and source = 'order'
-        and addHours(payment_time,8) < '2020-12-01 00:00:00')
+        and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00')))
        or
        (status not in ('PAYMENT_CREATE','PENDING')
        and source = 'top_order'
-       and addHours(payment_time,8) < '2020-12-01 00:00:00'))
+       and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))))
   group by order_month) t1
 left join
   (select
@@ -196,15 +203,16 @@ left join
   WHERE type != '1'
   AND ((status = '7'
         and source = 'order'
-        and addHours(update_time,8) >= '2020-01-01 00:00:00'
-        and addHours(update_time,8) < '2020-12-01 00:00:00')
+        and addHours(update_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(update_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00')))
        or
        (status = 'REFUNDED'
        and source = 'top_order'
-       and addHours(update_time,8) >= '2020-01-01 00:00:00'
-       and addHours(update_time,8) < '2020-12-01 00:00:00'))
+       and addHours(update_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+       and addHours(update_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))))
   group by order_month) t2
 on t1.company = t2.company and t1.order_month = t2.order_month) t
+where t.order_month != '197001'
 
 union all
 
@@ -245,23 +253,23 @@ from
   and order_price >= 10000
   AND ((status in ('1','2','3','4') and product_type = 'order'
         and payment_method_id not in ('0')
-        and payment_time > '2020-02-22 23:59:59'
-        and addHours(payment_time,8) < '2020-12-01 00:00:00')
+        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00')))
        or
        (status in ('1','2','3','4') and product_type = 'order'
         and payment_method_id = '0'
-        and create_time > '2020-02-22 23:59:59'
-        and addHours(create_time,8) < '2020-12-01 00:00:00')
+        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(create_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00')))
        or
        (status = 'SUCCESS' and product_type = 'topup_order'
         and payment_method_id not in ('0')
-        and payment_time > '2020-02-22 23:59:59'
-        and addHours(payment_time,8) < '2020-12-01 00:00:00')
+        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00')))
        or
        (status = 'SUCCESS' and product_type = 'topup_order'
         and payment_method_id = '0'
-        and create_time > '2020-02-22 23:59:59'
-        and addHours(create_time,8) < '2020-12-01 00:00:00'))
+        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(create_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))))
   group by order_month) t
   left join
   (select
@@ -269,7 +277,7 @@ from
     toYYYYMM(addHours(update_time,8)) as refund_month,
     sum(order_CNYamount) as refund_amount
    from dws.dws_Nobel_order
-   where create_time > '2020-02-22 23:59:59'
+   where addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
    and status = '3' and payment_method_id != 5
    group by refund_month) t1
 on t.company = t1.company and t.order_month = t1.refund_month) t2

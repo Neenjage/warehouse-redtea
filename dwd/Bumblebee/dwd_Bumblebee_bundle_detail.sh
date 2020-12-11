@@ -15,6 +15,10 @@ create table dwd.dwd_Bumblebee_bundle_detail_tmp
 Engine=MergeTree
 order by bundle_id as
 SELECT
+  t4.*,
+  bundle_price.bundle_price
+FROM
+(SELECT
     t2.bundle_id,
     t2.bundle_name,
     t2.bundle_code,
@@ -28,8 +32,7 @@ SELECT
     t2.channel_name,
     t2.channel_country,
     t3.bundle_group_id,
-    t3.bundle_group_name,
-    '$import_time' as import_time
+    t3.bundle_group_name
 FROM
 (
     SELECT
@@ -66,8 +69,7 @@ FROM
                 data_volume,
                 location,
                 enable_time
-              FROM dim.dim_Bumblebee_bundle
-              WHERE import_time = '$import_time') AS bundle
+              FROM dim.dim_Bumblebee_bundle) AS bundle
         LEFT JOIN
         (
             SELECT
@@ -76,7 +78,6 @@ FROM
                 name AS carrier_name,
                 status AS carrier_status
             FROM dim.dim_Bumblebee_carrier
-            WHERE import_time = '$import_time'
         ) AS carrier ON bundle.carrier_id = carrier.carrier_id
     ) AS t1
     LEFT JOIN
@@ -86,7 +87,6 @@ FROM
             channel_name,
             channel_country
         FROM dim.dim_Bumblebee_channel
-        WHERE import_time = '$import_time'
     ) AS channel ON t1.channel_id = channel.channel_id
 ) AS t2
 LEFT JOIN
@@ -99,16 +99,21 @@ LEFT JOIN
       (SELECT
           bundle_id,
           bundle_group_id
-       FROM dim.dim_Bumblebee_bundle_group_bundle
-       where import_time = '$import_time') AS bgd
+       FROM dim.dim_Bumblebee_bundle_group_bundle) AS bgd
     LEFT JOIN
       (SELECT
           bundle_group_id,
           bundle_group_name
-      FROM dim.dim_Bumblebee_bundle_group
-      where import_time = '$import_time') AS bg
+      FROM dim.dim_Bumblebee_bundle_group) AS bg
     ON bgd.bundle_group_id = bg.bundle_group_id
-) AS t3 ON t2.bundle_id = t3.bundle_id;
+) AS t3 ON t2.bundle_id = t3.bundle_id) t4
+left join
+(select
+  bundle_code,
+  max(price/10000) as bundle_price
+from dim.dim_Bumblebee_bundle_price
+where id not in (2)
+group by bundle_code) bundle_price on t4.bundle_code = bundle_price.bundle_code;
 
 drop table if exists dwd.dwd_Bumblebee_bundle_detail;
 

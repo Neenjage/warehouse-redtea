@@ -17,4 +17,3 @@ drop table if exists ods.ods_Nobel_user_wallet_transaction;
 
 rename table ods.ods_Nobel_user_wallet_transaction_tmp to ods.ods_Nobel_user_wallet_transaction;
 "
-

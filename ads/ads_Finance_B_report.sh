@@ -2,6 +2,12 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
+import_time=`date +%F`
+
+if [ -n "$1" ];then
+  import_time=$1
+fi
+
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE if not exists ads.ads_Finance_B_report
@@ -19,9 +25,9 @@ ENGINE = MergeTree
 ORDER BY company
 SETTINGS index_granularity = 8192;
 
-TRUNCATE TABLE ads.ads_Finance_B_report;
+Alter TABLE ads.ads_Finance_B_report delete where order_month = toString(toYYYYMM(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))));
 
-INSERT INTO  ads.ads_Finance_B_report
+INSERT INTO ads.ads_Finance_B_report
 select
   0 as id,
   '合计' as company,
@@ -34,8 +40,8 @@ select
 from
 dws.dws_Newton_order
 where reseller_id in (1,3,7,10)
-and addHours(end_time,8) >= '2020-01-01 00:00:00'
-and addHours(end_time,8) < '2020-12-01 00:00:00'
+and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
 and status  not in ('RESERVED','REFUNDED','REFUNDING')
 and activate_time is not null
 group by order_month
@@ -57,8 +63,8 @@ SELECT
 FROM
 dws.dws_Newton_order
 where reseller_id in (1,3,7,10)
-and addHours(end_time,8) >= '2020-01-01 00:00:00'
-and addHours(end_time,8) < '2020-12-01 00:00:00'
+and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
 and status  not in ('RESERVED','REFUNDED','REFUNDING')
 and activate_time is not null
 group by company,order_month;

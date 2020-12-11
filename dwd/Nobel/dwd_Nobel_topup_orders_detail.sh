@@ -76,7 +76,6 @@ t4 left join
                 name,
                 remark
             FROM dim.dim_Nobel_currency
-            WHERE import_time = '$import_time'
         ) AS currency_name
         LEFT JOIN
         (

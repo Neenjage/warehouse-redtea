@@ -19,6 +19,7 @@ if(data_plan_type=1,'包天套餐',if(data_plan_type=2,'流量套餐',if(data_pl
 from
 dws.dws_redtea_order
 where source = 'Einstein'
+and agent_name is not null
 and order_status not in ('REFUNDED','REFUNDING','RESERVED')
 and invalid_time = '2105-12-31 23:59:59'
 group by toStartOfDay(addHours(order_time,8)),

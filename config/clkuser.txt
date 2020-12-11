@@ -1,5 +1,5 @@
 #superset 用户
-redtea redteaadmin@redtea66668888  admin权限
+redtea redteamobileadmin@redtea66668888  admin权限
 redteamobile redteamobile@redtea66668888
 redteago redteago@redtea22030405
 duoduo duoduo@redtea35798

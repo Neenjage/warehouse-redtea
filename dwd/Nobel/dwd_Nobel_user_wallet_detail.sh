@@ -5,11 +5,13 @@ source /home/ops/warehouse-redtea/config/config.sh
 import_time=`date +%F`
 
 if [ -n "$1" ];then
-,import_time=$1
+  import_time=$1
 fi
 
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
-create table dwd.dwd_Nobel_user_wallet_detail
+drop table if exists dwd.dwd_Nobel_user_wallet_detail_tmp;
+
+create table dwd.dwd_Nobel_user_wallet_detail_tmp
 Engine=MergeTree
 order by user_id as
 select
@@ -99,4 +101,8 @@ group by user_id
 order by user_id) t2
 on t1.user_id = t2.user_id) t
 group by user_id,transaction_month;
+
+drop table if exists dwd.dwd_Nobel_user_wallet_detail;
+
+rename table dwd.dwd_Nobel_user_wallet_detail_tmp to dwd.dwd_Nobel_user_wallet_detail;
 "

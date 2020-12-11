@@ -151,7 +151,6 @@ FROM
                 name,
                 remark
             FROM dim.dim_Nobel_currency
-            WHERE import_time = '$import_time'
         ) AS currency_name
         LEFT JOIN 
         (
@@ -167,7 +166,6 @@ LEFT JOIN
 (
     SELECT *
     FROM dim.dim_Nobel_payment_methods
-    WHERE import_time = '$import_time'
 ) AS payment ON t8.payment_method_id = payment.id;
 
 drop table if exists dwd.dwd_Nobel_orders_detail;

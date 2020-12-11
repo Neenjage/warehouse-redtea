@@ -11,17 +11,16 @@ fi
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dws.dws_Nobel_user_tmp;
 
-create table dws.dws_Nobel_user_tmp
-Engine=MergeTree
-order by user_id as
-select
-user_id,
-email,
-register_time,
-source_type,
-user_status
-from
-dwd.dwd_Nobel_users_detail;
+CREATE TABLE dws.dws_Nobel_user_tmp
+ENGINE = MergeTree
+ORDER BY user_id AS
+SELECT
+    user_id,
+    email,
+    register_time,
+    source_type,
+    user_status
+FROM dwd.dwd_Nobel_users_detail;
 
 drop table if exists dws.dws_Nobel_user;
 

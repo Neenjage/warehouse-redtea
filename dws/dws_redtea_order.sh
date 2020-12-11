@@ -12,205 +12,233 @@ fi
 clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
 drop table if exists dws.dws_redtea_order_tmp;
 
-create table dws.dws_redtea_order_tmp
-Engine=MergeTree
-order by order_id as
-select
-total2.*,
-if(cdr.total_usage is null,0,cdr.total_usage) as total_usage,
-if(cdr.cost is null,0,cdr.cost) as cost,
-if((total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost) is null,0,
-   (total2.order_CNYamount-total2.transation_fee-total2.revenue_share-cdr.cost)) as net_amount,
-if(toDate(addHours(order_time,8)) = toDate(addHours(register_time,8)),1,0) as new_user_order_flag
-from
-(select
-total1.*,
-bundle_detail.bundle_id,
-bundle_detail.bundle_name,
-bundle_detail.carrier_id,
-bundle_detail.carrier_name,
-bundle_detail.bundle_group_id,
-bundle_detail.bundle_group_name
-from
-(select
-total.*,
-if(transaction.transaction_id = 0,-2,transaction.transaction_id) as transaction_id
+CREATE TABLE dws.dws_redtea_order_tmp
+ENGINE = MergeTree
+ORDER BY order_id AS
+SELECT
+    total2.*,
+    if(isNull(cdr.total_usage), 0, cdr.total_usage) AS total_usage,
+    if(isNotNull(total2.bundle_price),total2.bundle_price,if(isNotNull(cdr.cost),cdr.cost,0)) AS cost,
+    if(isNull(((total2.order_CNYamount - total2.transation_fee) - total2.revenue_share) - if(isNotNull(total2.bundle_price),total2.bundle_price,if(isNotNull(cdr.cost),cdr.cost,0))), 0, ((total2.order_CNYamount - total2.transation_fee) - total2.revenue_share) - if(isNotNull(total2.bundle_price),total2.bundle_price,if(isNotNull(cdr.cost),cdr.cost,0))) AS net_amount,
+    if(toDate(addHours(order_time, 8)) = toDate(addHours(register_time, 8)), 1, 0) AS new_user_order_flag
 FROM
-(SELECT
-  t2.order_id,
-  t2.source,
-  t2.agent_id as agent_id,
-  t2.agent_name,
-  t2.data_plan_id,
-  t2.data_plan_name,
-  t2.data_plan_type,
-  t2.data_plan_volume,
-  t2.order_location_name,
-  t2.imsi,
-  t2.order_CNYamount,
-  t2.payment_method_id,
-  t2.payment_method_name,
-  t2.transation_fee,
-  t2.revenue_share,
-  t2.currency_id,
-  t2.currency_name ,
-  t2.currency_CNY_rate,
-  t2.user_id,
-  t2.email,
-  t2.device_id as device_id,
-  device.brand as brand,
-  t2.order_status,
-  t2.activate_time,
-  t2.expiration_time,
-  t2.end_time,
-  t2.order_time,
-  t2.update_time,
-  t2.purchased_ip,
-  t2.effective_time,
-  t2.invalid_time,
-  t2.transaction_code,
-  t2.bundle_code,
-  device.residence,
-  device.register_time
-from
-dwd.dwd_Einstein_device_detail device inner join
-(SELECT
-  t1.*,
-  oipr.transaction_code,
-  oipr.bundle_code
-FROM
-(SELECT
-    toString(order_detail.order_id) as order_id,
-    order_detail.order_source as source,
-    toInt8(order_detail.agent_id) as agent_id,
-    order_detail.agent_name,
-    order_detail.data_plan_id,
-    data_plan_detail.data_plan_name,
-    data_plan_detail.data_plan_type,
-    data_plan_detail.data_plan_volume,
-    data_plan_detail.location_remark as order_location_name,
-    order_detail.imsi,
-    order_detail.order_CNYamount,
-    order_detail.payment_method_id,
-    order_detail.payment_method_name,
-    if(order_detail.payment_method_id = 4,order_detail.order_CNYamount*6/1000,
-        if(order_detail.payment_method_id = 9,order_detail.order_CNYamount*8/1000,
-          order_detail.order_CNYamount*4/100)) as transation_fee,
-    if(order_detail.agent_id = 1 or order_detail.agent_id = 14,
-        if(startsWith(order_detail.imsi,'460'),order_detail.order_CNYamount*0.3,order_detail.order_CNYamount*0.18),
-        if(order_detail.agent_id = 9 and startsWith(order_detail.imsi,'460'),order_detail.order_CNYamount*0.15,
-           order_detail.order_CNYamount*0.1)) as revenue_share,
-    order_detail.currency_id,
-    order_detail.currency_name,
-    order_detail.currency_CNY_rate,
-    toInt32(-1) as user_id,
-    'Einstein' as email,
-    order_detail.device_id,
-    order_detail.order_status,
-    order_detail.activate_time,
-    order_detail.expiration_time,
-    order_detail.end_time,
-    order_detail.order_time,
-    order_detail.update_time,
-    order_detail.order_ip as purchased_ip,
-    order_detail.effective_time,
-    order_detail.invalid_time
-FROM dwd.dwd_Einstein_orders_detail order_detail
-left join
-(SELECT
-  data_plan_id,
-  data_plan_name,
-  data_plan_type,
-  data_plan_volume,
-  location_remark
-FROM
-dwd.dwd_Einstein_data_plan_detail) data_plan_detail
-on order_detail.data_plan_id = toString(data_plan_detail.data_plan_id)) t1
-left join dwd.dwd_Einstein_order_imsi_profile_relation oipr on t1.order_id = toString(oipr.order_id)) t2
-on t2.device_id = device.device_id
-union all
-select
-t2.*,
-users.register_time
-from
-(select
-t1.*,
-resource_detail.bundle_code,
-'Not_cn' as residence
-from
-(select
-  order_detail.order_id,
-  order_detail.source,
-  toInt8(order_detail.agent_id) as agent_id,
-  order_detail.agent_name,
-  toString(order_detail.day_client_resource_id) as data_plan_id,
-  toString(data_plan_detail.data_plan_volume) as data_plan_name,
-  0 as data_plan_type,
-  data_plan_detail.data_plan_volume,
-  order_detail.location_name as order_location_name,
-  order_detail.imsi,
-  order_detail.order_CNYamount,
-  order_detail.payment_method_id,
-  order_detail.payment_method_name,
-  toFloat64(0) as transation_fee,
-  toFloat64(0) as revenue_share,
-  order_detail.currency_id,
-  order_detail.currency_name,
-  order_detail.currency_CNY_rate,
-  order_detail.user_id,
-  order_detail.email,
-  order_detail.device_id,
-  order_detail.model as brand,
-  order_detail.order_status,
-  order_detail.start_time as activate_time,
-  order_detail.end_time as expiration_time,
-  order_detail.end_time as end_time,
-  order_detail.create_time as order_time,
-  order_detail.last_update_time as update_time,
-  order_detail.ip as purchased_ip,
-  order_detail.effective_time,
-  order_detail.invalid_time,
-  order_detail.transaction_code
-FROM
-dwd.dwd_Nobel_orders_detail order_detail
-left join
-(SELECT
-  day_client_resource_id,
-  data_plan_volume
-FROM
-dwd.dwd_Nobel_data_plan_detail where import_time = '$import_time')  data_plan_detail
-on order_detail.day_client_resource_id = data_plan_detail.day_client_resource_id) t1
-left join
-(select
-transaction_code,
-bundle_code
-from dwd.dwd_Bell_imsi_resource_detail where transaction_code is not null and transaction_code != '') resource_detail
-on t1.transaction_code = resource_detail.transaction_code) t2
-left join dwd.dwd_Nobel_users_detail users
-on t2.email = users.email)  total
-left join dwd.dwd_Bumblebee_imsi_transaction_detail transaction on total.transaction_code = transaction.transaction_code) total1
-left join
-(select
-  bundle_code,
-  bundle_id,
-  bundle_name,
-  carrier_id,
-  carrier_name,
-  bundle_group_id,
-  bundle_group_name
-from dwd.dwd_Bumblebee_bundle_detail
-where import_time = '$import_time') bundle_detail on total1.bundle_code = bundle_detail.bundle_code) total2
-left join
-(select
-  cdr_raw.transaction_id,
-  sum(cdr_raw.total_usage) as total_usage,
-  sum(cdr_raw.cost) as cost
-from
-dwd.dwd_Bumblebee_imsi_transaction_cdr_raw cdr_raw
-where cdr_raw.transaction_id != -1
-group by
-  cdr_raw.transaction_id
-) as cdr on total2.transaction_id = cdr.transaction_id;
+(
+    SELECT
+        total1.*,
+        bundle_detail.bundle_id,
+        bundle_detail.bundle_name,
+        bundle_detail.bundle_price,
+        bundle_detail.carrier_id,
+        bundle_detail.carrier_name,
+        bundle_detail.bundle_group_id,
+        bundle_detail.bundle_group_name
+    FROM
+    (
+        SELECT
+            total.*,
+            if(transaction.transaction_id = 0, -2, transaction.transaction_id) AS transaction_id
+        FROM
+        (
+            SELECT
+                t3.*,
+                pay_detail.buyer_id
+            FROM
+            (
+                SELECT
+                    t2.order_id,
+                    t2.order_no,
+                    t2.source,
+                    t2.agent_id AS agent_id,
+                    t2.agent_name,
+                    t2.data_plan_id,
+                    t2.data_plan_name,
+                    t2.data_plan_type,
+                    t2.data_plan_volume,
+                    t2.order_location_name,
+                    t2.volume_usage,
+                    t2.imsi,
+                    t2.order_CNYamount,
+                    t2.payment_method_id,
+                    t2.payment_method_name,
+                    t2.transation_fee,
+                    t2.revenue_share,
+                    t2.currency_id,
+                    t2.currency_name,
+                    t2.currency_CNY_rate,
+                    t2.user_id,
+                    t2.email,
+                    t2.device_id AS device_id,
+                    device.brand AS brand,
+                    t2.order_status,
+                    t2.activate_time,
+                    t2.expiration_time,
+                    t2.end_time,
+                    t2.order_time,
+                    t2.update_time,
+                    t2.purchased_ip,
+                    t2.order_address,
+                    t2.effective_time,
+                    t2.invalid_time,
+                    t2.transaction_code,
+                    t2.bundle_code,
+                    device.residence,
+                    device.register_time,
+                    device.uid_level
+                FROM dwd.dwd_Einstein_device_detail AS device
+                INNER JOIN
+                (
+                    SELECT
+                        t1.*,
+                        oipr.transaction_code,
+                        oipr.bundle_code
+                    FROM
+                    (
+                        SELECT
+                            toString(order_detail.order_id) AS order_id,
+                            order_detail.order_no,
+                            order_detail.order_source AS source,
+                            toInt8(order_detail.agent_id) AS agent_id,
+                            order_detail.agent_name,
+                            order_detail.data_plan_id,
+                            data_plan_detail.data_plan_name,
+                            data_plan_detail.data_plan_type,
+                            data_plan_detail.data_plan_volume,
+                            data_plan_detail.location_remark AS order_location_name,
+                            order_detail.volume_usage,
+                            order_detail.imsi,
+                            order_detail.order_CNYamount,
+                            order_detail.payment_method_id,
+                            order_detail.payment_method_name,
+                            if(order_detail.payment_method_id = 4, (order_detail.order_CNYamount * 6) / 1000, if(order_detail.payment_method_id = 9, (order_detail.order_CNYamount * 8) / 1000, (order_detail.order_CNYamount * 4) / 100)) AS transation_fee,
+                            if((order_detail.agent_id = 1) OR (order_detail.agent_id = 14), if(startsWith(order_detail.imsi, '460'), order_detail.order_CNYamount * 0.3, order_detail.order_CNYamount * 0.18), if((order_detail.agent_id = 9) AND startsWith(order_detail.imsi, '460'), order_detail.order_CNYamount * 0.15, order_detail.order_CNYamount * 0.1)) AS revenue_share,
+                            order_detail.currency_id,
+                            order_detail.currency_name,
+                            order_detail.currency_CNY_rate,
+                            toInt32(-1) AS user_id,
+                            'Einstein' AS email,
+                            order_detail.device_id,
+                            order_detail.order_status,
+                            order_detail.activate_time,
+                            order_detail.expiration_time,
+                            order_detail.end_time,
+                            order_detail.order_time,
+                            order_detail.update_time,
+                            order_detail.order_ip AS purchased_ip,
+                            order_detail.order_address,
+                            order_detail.effective_time,
+                            order_detail.invalid_time
+                        FROM dwd.dwd_Einstein_orders_detail AS order_detail
+                        LEFT JOIN
+                        (
+                            SELECT
+                                data_plan_id,
+                                data_plan_name,
+                                data_plan_type,
+                                data_plan_volume,
+                                location_remark
+                            FROM dwd.dwd_Einstein_data_plan_detail
+                        ) AS data_plan_detail ON order_detail.data_plan_id = toString(data_plan_detail.data_plan_id)
+                    ) AS t1
+                    LEFT JOIN dwd.dwd_Einstein_order_imsi_profile_relation AS oipr ON t1.order_id = toString(oipr.order_id)
+                ) AS t2 ON t2.device_id = device.device_id
+            ) AS t3
+            LEFT JOIN dwd.dwd_Einstein_pay_detail AS pay_detail ON t3.order_no = pay_detail.out_trade_no
+            UNION ALL
+            SELECT
+                t2.*,
+                users.register_time,
+                -10000 AS uid_level,
+                'unknown' AS buyer_id
+            FROM
+            (
+                SELECT
+                    t1.*,
+                    resource_detail.bundle_code,
+                    'Not_cn' AS residence
+                FROM
+                (
+                    SELECT
+                        order_detail.order_id,
+                        '0' AS order_no,
+                        order_detail.source,
+                        toInt8(order_detail.agent_id) AS agent_id,
+                        order_detail.agent_name,
+                        toString(order_detail.day_client_resource_id) AS data_plan_id,
+                        toString(data_plan_detail.data_plan_volume) AS data_plan_name,
+                        0 AS data_plan_type,
+                        data_plan_detail.data_plan_volume,
+                        order_detail.location_name AS order_location_name,
+                        0 AS volume_usage,
+                        order_detail.imsi,
+                        order_detail.order_CNYamount,
+                        order_detail.payment_method_id,
+                        order_detail.payment_method_name,
+                        toFloat64(0) AS transation_fee,
+                        toFloat64(0) AS revenue_share,
+                        order_detail.currency_id,
+                        order_detail.currency_name,
+                        order_detail.currency_CNY_rate,
+                        order_detail.user_id,
+                        order_detail.email,
+                        order_detail.device_id,
+                        order_detail.model AS brand,
+                        order_detail.order_status,
+                        order_detail.start_time AS activate_time,
+                        order_detail.end_time AS expiration_time,
+                        order_detail.end_time AS end_time,
+                        order_detail.create_time AS order_time,
+                        order_detail.last_update_time AS update_time,
+                        order_detail.ip AS purchased_ip,
+                        'unknown' AS order_address,
+                        order_detail.effective_time,
+                        order_detail.invalid_time,
+                        order_detail.transaction_code
+                    FROM dwd.dwd_Nobel_orders_detail AS order_detail
+                    LEFT JOIN
+                    (
+                        SELECT
+                            day_client_resource_id,
+                            data_plan_volume
+                        FROM dwd.dwd_Nobel_data_plan_detail
+                    ) AS data_plan_detail ON order_detail.day_client_resource_id = data_plan_detail.day_client_resource_id
+                ) AS t1
+                LEFT JOIN
+                (
+                    SELECT
+                        transaction_code,
+                        bundle_code
+                    FROM dwd.dwd_Bell_imsi_resource_detail
+                    WHERE isNotNull(transaction_code) AND (transaction_code != '')
+                ) AS resource_detail ON t1.transaction_code = resource_detail.transaction_code
+            ) AS t2
+            LEFT JOIN dwd.dwd_Nobel_users_detail AS users ON t2.email = users.email
+        ) AS total
+        LEFT JOIN dwd.dwd_Bumblebee_imsi_transaction_detail AS transaction ON total.transaction_code = transaction.transaction_code
+    ) AS total1
+    LEFT JOIN
+    (
+        SELECT
+            bundle_code,
+            bundle_price,
+            bundle_id,
+            bundle_name,
+            carrier_id,
+            carrier_name,
+            bundle_group_id,
+            bundle_group_name
+        FROM dwd.dwd_Bumblebee_bundle_detail
+    ) AS bundle_detail ON total1.bundle_code = bundle_detail.bundle_code
+) AS total2
+LEFT JOIN
+(
+    SELECT
+        cdr_raw.transaction_id,
+        sum(cdr_raw.total_usage) AS total_usage,
+        sum(cdr_raw.cost) AS cost
+    FROM dwd.dwd_Bumblebee_imsi_transaction_cdr_raw AS cdr_raw
+    WHERE cdr_raw.transaction_id != -1
+    GROUP BY cdr_raw.transaction_id
+) AS cdr ON total2.transaction_id = cdr.transaction_id;
 
 drop table if exists dws.dws_redtea_order;
 
