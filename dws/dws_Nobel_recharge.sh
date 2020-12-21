@@ -16,6 +16,7 @@ Engine=MergeTree
 order by id as
 select
   id,
+  source_type,
   order_price,
   create_time,
   order_status

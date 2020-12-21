@@ -15,13 +15,14 @@ create table ads.ads_Nobel_recharge_report_tmp
 Engine=MergeTree
 order by charge_number as
 select
+  source_type,
   toStartOfDay(create_time) as recharge_time,
   sum(order_price)/10000 as charge_amount,
   count(*) as charge_number
 from
 dws.dws_Nobel_recharge
 where order_status='PAID'
-group by toStartOfDay(create_time);
+group by toStartOfDay(create_time),source_type;
 "
 
 for((i=0;i<=$date_number;i++));
@@ -30,9 +31,13 @@ do
   clickhouse-client --user $user --password $password --multiquery --multiline -q"
   INSERT INTO ads.ads_Nobel_recharge_report_tmp
   SELECT
-  toStartOfDay(toDateTime('$date_time 00:00:00')) as recharge_time,
-  0 as charge_amount,
-  0 as charge_number;
+    source_type,
+    toStartOfDay(toDateTime('$date_time 00:00:00')) as recharge_time,
+    0 as charge_amount,
+    0 as charge_number
+  from
+  ads.ads_Nobel_recharge_report_tmp
+  group by source_type;
   "
 done
 
@@ -44,12 +49,13 @@ create table ads.ads_Nobel_recharge_report_tmp1
 Engine=MergeTree
 order by charge_number as
 select
+  source_type,
   recharge_time,
   sum(charge_amount) as charge_amount,
   sum(charge_number) as charge_number
 from
 ads.ads_Nobel_recharge_report_tmp
-group by recharge_time;
+group by recharge_time,source_type;
 
 drop table if exists ads.ads_Nobel_recharge_report;
 
