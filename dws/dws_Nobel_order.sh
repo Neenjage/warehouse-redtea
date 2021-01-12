@@ -8,6 +8,12 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
+
+#data_plan_order_price为当前订单套餐的订单金额也为该订单的总套餐订餐金额
+#total_topup_order_price为当前套餐订单下的总流量充值订单金额
+#total_order_CNYamount为当前订单套餐+流量充值的总金额(RMB)
+#order_price为当前订单的订单金额(如果未套餐订单那就是套餐订单金额，如果未流量充值那就是流量充值订单金额) 因为为了BI分析，将套餐订单与流量订单有做Union。
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dws.dws_Nobel_order_tmp;
 
@@ -20,8 +26,10 @@ select
   order.create_time,
   order.end_time,
   order.last_update_time as update_time,
-  order.order_price,
-  order.order_CNYamount,
+  order.data_plan_order_price as order_price,
+  order.data_plan_order_price as total_data_plan_order_price,
+  order.topup_order_price as total_topup_order_price,
+  order.order_CNYamount as total_order_CNYamount,
   order.source_type,
   order.location_name,
   order.payment_method_id,
@@ -53,7 +61,9 @@ select
   end_time,
   update_time,
   order_price,
-  order_CNYamount,
+  total_data_plan_order_price,
+  total_topup_order_price,
+  total_order_CNYamount,
   toString(source_type) as source_type,
   location_name,
   payment_method_id,
@@ -73,7 +83,9 @@ select
   topup_order.create_time as end_time,
   topup_order.update_time,
   topup_order.order_price,
-  topup_order.order_CNYamount,
+  order.total_data_plan_order_price,
+  order.total_topup_order_price,
+  order.total_order_CNYamount,
   topup_order.source_type,
   order.location_name,
   order.payment_method_id,
@@ -87,6 +99,9 @@ dwd.dwd_Nobel_topup_orders_detail as  topup_order
 left join
 (select
   order_id,
+  total_data_plan_order_price,
+  total_topup_order_price,
+  total_order_CNYamount,
   email,
   register_time,
   payment_method_id,

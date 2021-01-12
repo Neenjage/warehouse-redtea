@@ -24,9 +24,9 @@ ENGINE = MergeTree
 ORDER BY company
 SETTINGS index_granularity = 8192;
 
-Alter TABLE ads.ads_Finance_C_report delete where order_month = toString(toYYYYMM(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))));
+ALTER TABLE ads.ads_Finance_C_report delete where order_month = toString(toYYYYMM(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))));
 
-INSERT into table ads.ads_Finance_C_report
+INSERT INTO table ads.ads_Finance_C_report
 select
 t5.company,
 t5.order_month,

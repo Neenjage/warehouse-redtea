@@ -13,3 +13,8 @@ finance finance@redtea123456
 redteamobile  123456  只读用户
 redtea redtea@clickhouse86868 admin用户
 default default123456redtea  default用户
+
+
+#superset 连接mysql
+
+root   redtea123456

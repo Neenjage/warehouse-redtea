@@ -96,7 +96,12 @@ FROM
                                 dpo.user_id,
                                 dpo.effective_time,
                                 dpo.invalid_time
-                            FROM ods.ods_Nobel_data_plan_order AS dpo
+                            FROM
+                            (select
+                              *
+                            from
+                            ods.ods_Nobel_data_plan_order
+                            where create_time > '2020-02-22 23:59:59') AS dpo
                             LEFT JOIN 
                             (
                                 SELECT 

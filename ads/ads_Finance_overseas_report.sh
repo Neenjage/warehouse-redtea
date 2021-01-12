@@ -12,7 +12,8 @@ CREATE TABLE if not exists ads.ads_Finance_overseas_report
     other_fee Nullable(Float64),
     bank_income Nullable(Float64),
     no_tax_income Nullable(Float64),
-    value_add_tax Nullable(Float64)
+    value_add_tax Nullable(Float64),
+    agent_revenue Nullable(Float64)
 )
 ENGINE = MergeTree
 ORDER BY company
@@ -29,7 +30,8 @@ SELECT
     toDecimal64(other_fee1,2) as other_fee,
     toDecimal64(bank_income,2) as bank_income,
     toDecimal64(0,2) as no_tax_income,
-    toDecimal64(0,2) as value_add_tax
+    toDecimal64(0,2) as value_add_tax,
+    toDecimal64(agent_revenue,2) as agent_revenue
 from(
 select
   0 as id,
@@ -37,7 +39,8 @@ select
   order_month,
   sum(other_income) as other_income1,
   sum(other_fee) as other_fee1,
-  sum(other_income - other_fee) as bank_income
+  sum(other_income - other_fee) as bank_income,
+  sum(agent_revenue) as agent_revenue
 from ads.ads_Finance_C_report
 group by order_month
 
@@ -49,7 +52,8 @@ select
   order_month,
   sum(other_income) as other_income1,
   sum(other_fee) as other_fee1,
-  sum(other_income - other_fee) as bank_income
+  sum(other_income - other_fee) as bank_income,
+  sum(agent_revenue) as agent_revenue
 from ads.ads_Finance_C_report
 group by order_month,company) t;
 "
