@@ -9,6 +9,36 @@ if [ -n "$1" ];then
 fi
 
 #将话单表中transaction_id为0，已转换为-1的数据纳入成本中(没有匹配到相关订单，但有流量消耗)
+
+#data_plan_volume = -1 按天不限量
+#data_plan_vomue = 1024000不限量
+
+#成本逻辑业务
+#bundle_price有值表示为预付费，只要使用该bundle，并且激活就是bundle_price的成本
+#carrier_id = 218 表示这个该运营商在2020年9月让我们帮忙消耗流量，所以成本为0，MTX土耳其免费流量
+#订单状态为OBSOLETE的为过期都未激活，所以流量成本为0。
+#data_plan_type = 99 表示免费流量。没买套餐免费送20-30兆(能匹配到话单，但是一个话单会对应多个订单，所以以订单角度即默认用户使用完我们送的套餐流量计算成本)。
+
+#以下为国内的相关的流量单价收费情况  如果order_volume 表中有相关订单的流量上传以该流量为消耗计算成本，如果没有则以套餐表中的流量计算成本
+#carrier	bundle—Group	name	                      单卡成本	每GB	    流量计算方式
+#105	      -	      联通冰激凌卡-39元20G	              25	  1.25	    包月，每月20GB高速，不限量低速
+#209	      -   	  联通冰激凌卡-129元30G-API控制关停	    60	    2	      包月，单卡30GB 超过流量计算为3块每GB
+#212	      -	      联通冰激凌卡-239元80G-API控制关停	    160	    2	      包月，单卡80GB
+#214	    268	      佛山移动-手机-20GB	                49	    2.45	  包月，单卡20GB
+#214	    252	      佛山移动-手机-50GB	                105	    2.1	    包月，单卡50GB
+#216	      -	      IOE联通-手机	                      19.5	  1.3	    包月，流量池=激活卡数量*15GB
+#219	      -	      深圳移动-手机	                      12	    2	      包月，流量池=激活卡数量*6GB
+#223	      -	      连连科技	                          -	1	      每日1元800MB
+
+
+#国外话单没匹配到成本的情况下
+#如果没匹配到话单表，但是落地运营商单价，消耗流量知道，cdr.total_usage/1024/1024/1024*total2.local_carrier_price
+#如果没匹配到话单表，落地运营单价也不知道，采用套餐的流量大小(默认套餐全部使用完，成本会偏高)， total2.data_plan_volume/1024*total2.local_carrier_price
+
+
+#order_status = 'OBSOLETE' and cost != 0  AND total_usage = 0 表示该订单为预付费订单套餐，即bundle_price不为空
+
+
 clickhouse-client --user $user --password $password --multiquery --multiline --max_memory_usage 30000000000 -q"
 drop table if exists dws.dws_redtea_order_tmp;
 
@@ -17,9 +47,31 @@ ENGINE = MergeTree
 ORDER BY order_id AS
 SELECT
     total2.*,
-    if(isNull(cdr.total_usage), 0, cdr.total_usage) AS total_usage,
-    if(isNotNull(total2.bundle_price),total2.bundle_price,if(isNotNull(cdr.cost),cdr.cost,0)) AS cost,
-    if(isNull(((total2.order_CNYamount - total2.transation_fee) - total2.revenue_share) - if(isNotNull(total2.bundle_price),total2.bundle_price,if(isNotNull(cdr.cost),cdr.cost,0))), 0, ((total2.order_CNYamount - total2.transation_fee) - total2.revenue_share) - if(isNotNull(total2.bundle_price),total2.bundle_price,if(isNotNull(cdr.cost),cdr.cost,0))) AS net_amount,
+    cdr.total_usage AS total_usage,
+    if(total2.order_status = 'OBSOLETE' and cdr.total_usage is null,0,
+      if(isNotNull(total2.bundle_price) and total2.bundle_price != 0,total2.bundle_price,
+      if(carrier_id = 218,0,
+      if(total2.data_plan_type = 99 and cdr.total_usage is null,0,
+      if(total2.data_plan_type = 99 and local_carrier_price != 0 and data_plan_volume > 0,total2.data_plan_volume/1024*total2.local_carrier_price,
+      if(cdr.cost != 0,cdr.cost,
+      if(total2.carrier_id = 223 ,if(total2.volume_usage is not null,total2.volume_usage/1024/1024/800,total2.data_plan_volume/800),
+      if(total2.carrier_id = 219 ,if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*2,total2.data_plan_volume/1024*2),
+      if(total2.carrier_id = 216 ,if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*1.3,total2.data_plan_volume/1024*1.3),
+      if(total2.carrier_id = 214 and total2.bundle_group_id = 252 ,if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*2.1,total2.data_plan_volume/1024*2.1),
+      if(total2.carrier_id = 214 and total2.bundle_group_id = 268 ,if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*2.45,total2.data_plan_volume/1024*2.45),
+      if(total2.carrier_id = 212 ,if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*2,total2.data_plan_volume/1024*2),
+      if(total2.carrier_id = 209 ,if(total2.source='Einstein',if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*2,total2.data_plan_volume/1024*2),
+                                    if(total2.volume_usage is not null,
+                                        if(total2.volume_usage/1024/1024/1024<=30, total2.volume_usage/1024/1024/1024*2, (total2.volume_usage/1024/1024/1024-30)*3+60),
+                                        if(data_plan_volume = 1024000,60,data_plan_volume/1024*2))),
+      if(total2.carrier_id = 105,if(total2.source='Einstein',
+            if(total2.volume_usage is not null,total2.volume_usage/1024/1024/1024*1.25,total2.data_plan_volume/1024*1.25),
+            if(total2.volume_usage is not null and total2.volume_usage/1024/1024/1024 <= 20,total2.volume_usage/1024/1024/1024*1.25,
+            if(data_plan_volume = 1024000,25,total2.data_plan_volume/1024*1.25))),
+      if(total2.local_carrier_price is not null and total2.local_carrier_price !=0 and cdr.total_usage != 0,cdr.total_usage/1024/1024/1024*total2.local_carrier_price,
+      if(total2.local_carrier_price is not null and total2.data_plan_volume >0,total2.data_plan_volume/1024*total2.local_carrier_price,
+      if(total2.activate_time is NOT NULL and total2.volume_usage is NOT NULL and total2.local_carrier_price != 0 and total2.local_carrier_price is not null,total2.volume_usage/1024/1024/1024 * total2.local_carrier_price,0))))))))))))))))) AS total_cost,
+    if(isNull(((total2.order_CNYamount - total2.transation_fee) - total2.revenue_share) - total_cost), 0, ((total2.order_CNYamount - total2.transation_fee) - total2.revenue_share) - total_cost) AS net_amount,
     if(toDate(addHours(order_time, 8)) = toDate(addHours(register_time, 8)), 1, 0) AS new_user_order_flag
 FROM
 (
@@ -31,7 +83,11 @@ FROM
         bundle_detail.carrier_id,
         bundle_detail.carrier_name,
         bundle_detail.bundle_group_id,
-        bundle_detail.bundle_group_name
+        bundle_detail.bundle_group_name,
+        bundle_detail.local_carrier_id,
+        bundle_detail.local_carrier_name,
+        bundle_detail.location_code,
+        bundle_detail.local_carrier_price
     FROM
     (
         SELECT
@@ -96,7 +152,8 @@ FROM
                         SELECT
                             toString(order_detail.order_id) AS order_id,
                             order_detail.order_no,
-                            order_detail.order_source AS source,
+                            case when data_plan_detail.data_plan_name like '%流量宝%' then 'Bethune'
+                                 else order_detail.order_source end AS source,
                             toInt8(order_detail.agent_id) AS agent_id,
                             order_detail.agent_name,
                             order_detail.data_plan_id,
@@ -218,15 +275,21 @@ FROM
     LEFT JOIN
     (
         SELECT
-            bundle_code,
-            bundle_price,
-            bundle_id,
-            bundle_name,
-            carrier_id,
-            carrier_name,
-            bundle_group_id,
-            bundle_group_name
-        FROM dwd.dwd_Bumblebee_bundle_detail
+            bundle.bundle_code,
+            bundle.bundle_price,
+            bundle.bundle_id,
+            bundle.bundle_name,
+            bundle.carrier_id,
+            bundle.carrier_name,
+            bundle.bundle_group_id,
+            bundle.bundle_group_name,
+            local_carrier.local_carrier_id,
+            local_carrier.local_carrier_name,
+            local_carrier.location_code,
+            if(bundle.local_carrier_price is not null,bundle.local_carrier_price,local_carrier.local_carrier_price) as local_carrier_price
+        FROM dwd.dwd_Bumblebee_bundle_detail bundle
+        LEFT JOIN dwd.dwd_Bumblebee_local_carrier_detail local_carrier
+        ON bundle.carrier_id = local_carrier.carrier_id and bundle.local_carrier_plmns = local_carrier.location_code and bundle.bundle_group_id = local_carrier.bundle_group_id
     ) AS bundle_detail ON total1.bundle_code = bundle_detail.bundle_code
 ) AS total2
 LEFT JOIN
@@ -261,7 +324,7 @@ left join
 from
 dws.dws_redtea_order
 where source = 'Einstein'
-and order_status not in ('REFUNDED','REFUNDING33','RESERVED')
+and order_status not in ('REFUNDED','REFUNDING','RESERVED')
 and order_CNYamount > 0
 and invalid_time = '2105-12-31 23:59:59'
 group by device_id) first_order
@@ -282,7 +345,7 @@ bundle_id,
 carrier_id,
 bundle_group_id,
 total_usage,
-cost,
+total_cost,
 transation_fee,
 revenue_share,
 net_amount)
