@@ -41,6 +41,7 @@ from
 	order.payment_status,
 	order.payment_order_id,
 	order.payment_time,
+	order.account,
 	user.user_status,
 	user.create_time as register_time,
 	user.login_time,
@@ -73,7 +74,8 @@ from
 	order.user_ip,
 	order.payment_status,
 	order.payment_order_id,
-	order.payment_time
+	order.payment_time,
+	order.account
 from dwd.dwd_Bethune_order_detail as order
 union all
 select
@@ -98,7 +100,8 @@ payment_mode as payment_method,
 'unknown' as user_ip,
 top_up_order.payment_status,
 top_up_order.payment_order_id,
-top_up_order.payment_time
+top_up_order.payment_time,
+top_up_order.account
 from
 dwd.dwd_Bethune_top_up_order_detail top_up_order) as order
 left join dwd.dwd_Bethune_user_detail as user

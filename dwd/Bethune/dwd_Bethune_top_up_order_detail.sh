@@ -17,7 +17,8 @@ ORDER BY user_id AS
 SELECT
     t1.*,
     payment_order.status AS payment_status,
-    payment_order.update_time AS payment_time
+    payment_order.update_time AS payment_time,
+    payment_order.account
 FROM
 (
     SELECT

@@ -171,16 +171,16 @@ from
 select
  t1.company,
  t1.order_month,
- t1.churchyard_income1-t2.churchyard_refund as churchyard_income,
- t1.overseas_income1-t2.overseas_refund as overseas_income,
+ if(t1.churchyard_income1-t2.churchyard_refund < 0,0,t1.churchyard_income1-t2.churchyard_refund) as churchyard_income,
+ if(t1.overseas_income1-t2.overseas_refund < 0,0,t1.overseas_income1-t2.overseas_refund) as overseas_income,
  churchyard_income*0.006 as churchyard_fee,
  overseas_income*0.008 as overseas_fee
 from
   (select
   '多多流量宝' as company,
   toYYYYMM(addHours(payment_time,8)) as order_month,
-  sum(if(payment_method = 2,amount,0))/100 as churchyard_income1,
-  sum(if(payment_method = 2,0,amount))/100 as overseas_income1
+  sum(if(account = '1605063756' or account = 'pay_redteasz@redteamobile.com',amount,0))/100 as churchyard_income1,
+  sum(if(account = '1605063756' or account = 'pay_redteasz@redteamobile.com',0,amount))/100 as overseas_income1
   from
   dws.dws_Bethune_order
   WHERE type != '1'
@@ -196,8 +196,8 @@ left join
   (select
   '多多流量宝' as company,
   toYYYYMM(addHours(update_time,8)) as order_month,
-  sum(if(payment_method = 2,amount,0))/100 as churchyard_refund,
-  sum(if(payment_method = 2,0,amount))/100 as overseas_refund
+  sum(if(account = '1605063756' or account = 'pay_redteasz@redteamobile.com',amount,0))/100 as churchyard_refund,
+  sum(if(account = '1605063756' or account = 'pay_redteasz@redteamobile.com',0,amount))/100 as overseas_refund
   from
   dws.dws_Bethune_order
   WHERE type != '1'
@@ -245,7 +245,7 @@ from
        when status = 'SUCCESS' and product_type = 'topup_order'
         and payment_method_id not in ('0') then toYYYYMM(addHours(payment_time,8))
        else toYYYYMM(addHours(create_time,8)) end as order_month,
-  sum(order_CNYamount) as total_income
+  sum(total_order_CNYamount) as total_income
   from
   dws.dws_Nobel_order
   where status in ('1','2','3','4','SUCCESS')
@@ -275,7 +275,7 @@ from
   (select
     'RedteaGO' as company,
     toYYYYMM(addHours(update_time,8)) as refund_month,
-    sum(order_CNYamount) as refund_amount
+    sum(total_order_CNYamount) as refund_amount
    from dws.dws_Nobel_order
    where addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
    and status = '3' and payment_method_id != 5
