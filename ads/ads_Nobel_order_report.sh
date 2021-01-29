@@ -22,8 +22,8 @@ select
   toStartOfDay(create_time) as order_time,
   if(source_type='0','Web',
   if(source_type='2001','Android',
-  if(source_type='3001','IOS',
-  if(source_type='3002','iOS_APP',
+  if(source_type='3001','redteago',
+  if(source_type='3002','eSIM data',
   if(source_type='3003','IOS_IPAD_APP_INNER','MreSIM'))))) as source,
   if(new_user_order_flag = 1,'新用户订单','留存用户订单') as new_user_order,
   if(user_first_order_flag = 1,'首次购买订单','二次及以上订单') as user_first_order,
@@ -99,8 +99,8 @@ FROM
     SELECT
       if(source_type='0','Web',
       if(source_type='2001','Android',
-      if(source_type='3001','IOS',
-      if(source_type='3002','iOS_APP',
+      if(source_type='3001','redteago',
+      if(source_type='3002','eSIM data',
       if(source_type='3003','IOS_IPAD_APP_INNER','MreSIM'))))) as source
     FROM dws.dws_Nobel_order
     WHERE (status IN ('1', 'SUCCESS')) AND (order_price >= 10000) AND (create_time > '2020-02-22 23:59:59') AND (create_time < toStartOfDay(now()))
