@@ -1,0 +1,5 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=dwd_Bethune_user_detail,dwd_Bethune_order_detail,dwd_Bethune_top_up_order_detail
+command=sh /home/ops/warehouse-redtea/dws/dws_Bethune_user.sh ${date}

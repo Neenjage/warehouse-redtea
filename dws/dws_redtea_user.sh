@@ -8,6 +8,9 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
+
+#dwd.dwd_Einstein_order_detail查询条件中order_amount != 0 表示过滤掉了免费流量的订单即也关联不到免费订单的话单表，即没有免费订单的成本
+
 clickhouse-client --user $user --password $password --multiquery --multiline  --max_memory_usage 30000000000 -q"
 drop table if exists dws.dws_redtea_user_tmp;
 

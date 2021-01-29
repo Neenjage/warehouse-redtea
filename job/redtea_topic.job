@@ -1,0 +1,6 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=dws_Bethune_order,dws_Bethune_user,dws_redtea_user,dws_redtea_cdr,dws_redtea_order,dws_Nobel_order,dws_Nobel_recharge,dws_Nobel_user,dws_Newton_order,dws_Nobel_wallet
+command=echo "end job !!!!"
+

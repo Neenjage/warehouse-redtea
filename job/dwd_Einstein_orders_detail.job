@@ -1,0 +1,5 @@
+type=command
+retries=999
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+dependencies=ods_Einstein_orders,ods_Einstein_order_appraises,ods_Einstein_order_ipaddress,ods_Einstein_order_volume,dim_Einstein_agent,dim_Einstein_provider,dim_Einstein_payment_methods,dim_Einstein_currency,dim_Bumblebee_currency_rate,dim_Einstein_order_channel,ods_Einstein_device
+command=sh /home/ops/warehouse-redtea/dwd/Einstein/dwd_Einstein_orders_detail.sh ${date}

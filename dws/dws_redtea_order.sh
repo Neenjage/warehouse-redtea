@@ -110,6 +110,7 @@ FROM
                     t2.data_plan_name,
                     t2.data_plan_type,
                     t2.data_plan_volume,
+                    t2.location_id,
                     t2.order_location_name,
                     t2.volume_usage,
                     t2.imsi,
@@ -125,6 +126,7 @@ FROM
                     t2.email,
                     t2.device_id AS device_id,
                     device.brand AS brand,
+                    device.model as model,
                     t2.order_status,
                     t2.activate_time,
                     t2.expiration_time,
@@ -160,6 +162,7 @@ FROM
                             data_plan_detail.data_plan_name,
                             data_plan_detail.data_plan_type,
                             data_plan_detail.data_plan_volume,
+                            data_plan_detail.location_id,
                             data_plan_detail.location_remark AS order_location_name,
                             order_detail.volume_usage,
                             order_detail.imsi,
@@ -192,6 +195,7 @@ FROM
                                 data_plan_name,
                                 data_plan_type,
                                 data_plan_volume,
+                                location_id,
                                 location_remark
                             FROM dwd.dwd_Einstein_data_plan_detail
                         ) AS data_plan_detail ON order_detail.data_plan_id = toString(data_plan_detail.data_plan_id)
@@ -224,6 +228,7 @@ FROM
                         toString(data_plan_detail.data_plan_volume) AS data_plan_name,
                         0 AS data_plan_type,
                         data_plan_detail.data_plan_volume,
+                        order_detail.area_id as location_id,
                         order_detail.location_name AS order_location_name,
                         0 AS volume_usage,
                         order_detail.imsi,
@@ -239,6 +244,7 @@ FROM
                         order_detail.email,
                         order_detail.device_id,
                         order_detail.model AS brand,
+                        order_detail.model AS model,
                         order_detail.order_status,
                         order_detail.start_time AS activate_time,
                         order_detail.end_time AS expiration_time,

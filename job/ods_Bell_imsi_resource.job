@@ -1,0 +1,4 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+command=/home/ops/warehouse-redtea/ods/Bell/ods_Bell_imsi_resource.sh ${date}

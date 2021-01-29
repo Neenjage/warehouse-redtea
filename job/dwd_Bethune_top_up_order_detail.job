@@ -1,0 +1,5 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=ods_Bethune_top_up_order,ods_Bethune_payment_order_info,ods_Mammon_payment_order
+command=sh /home/ops/warehouse-redtea/dwd/Bethune/dwd_Bethune_top_up_order_detail.sh ${date}

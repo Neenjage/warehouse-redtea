@@ -1,0 +1,4 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+command=sh /home/ops/warehouse-redtea/dim/Bell/dim_Bell_merchant.sh ${date}

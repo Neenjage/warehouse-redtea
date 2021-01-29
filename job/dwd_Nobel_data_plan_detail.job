@@ -1,0 +1,5 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=dim_Nobel_day_client_resource,dim_Nobel_data_plan_day,dim_Nobel_data_plan_volume,dim_Nobel_area,dim_Nobel_continent,dim_Nobel_currency
+command=sh /home/ops/warehouse-redtea/dwd/Nobel/dwd_Nobel_data_plan_detail.sh ${date}

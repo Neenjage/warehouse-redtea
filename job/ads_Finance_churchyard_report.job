@@ -1,0 +1,5 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=ads_Finance_C_report
+command=sh /home/ops/warehouse-redtea/ads/ads_Finance_churchyard_report.sh ${date}

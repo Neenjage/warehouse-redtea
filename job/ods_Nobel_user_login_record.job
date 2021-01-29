@@ -1,0 +1,4 @@
+type=command
+retries=999
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+command=sh /home/ops/warehouse-redtea/ods/Nobel/ods_Nobel_user_login_record.sh ${date}

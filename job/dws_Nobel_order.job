@@ -1,0 +1,5 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=dwd_Nobel_users_detail,dwd_Nobel_orders_detail,dwd_Nobel_topup_orders_detail
+command=sh /home/ops/warehouse-redtea/dws/dws_Nobel_order.sh ${date}

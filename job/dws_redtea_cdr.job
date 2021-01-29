@@ -1,0 +1,5 @@
+type=command
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=dwd_Bumblebee_imsi_transaction_cdr_raw,dwd_Bumblebee_bundle_detail,dwd_Einstein_order_imsi_profile_relation,dwd_Einstein_orders_detail,dwd_Einstein_data_plan_detail,dwd_Nobel_orders_detail,dwd_Nobel_data_plan_detail,dwd_Bumblebee_local_carrier_detail,dwd_Bumblebee_imsi_transaction_detail,dws_redtea_order
+command=sh /home/ops/warehouse-redtea/dws/dws_redtea_cdr.sh ${date}

@@ -1,0 +1,6 @@
+type=command
+retries=999
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+retries=999
+dependencies=ods_Nobel_data_plan_topup_order,ods_Nobel_pay_order_info,ods_Nobel_payment_order_info,ods_Mammon_payment_order,dim_Nobel_currency,dim_Bumblebee_currency_rate
+command=sh /home/ops/warehouse-redtea/dwd/Nobel/dwd_Nobel_topup_orders_detail.sh ${date}

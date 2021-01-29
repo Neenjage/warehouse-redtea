@@ -1,0 +1,5 @@
+type=command
+retries=999
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+dependencies=ods_Newton_orders,ods_Newton_data_plan,ods_Newton_reseller
+command=sh /home/ops/warehouse-redtea/dwd/Newton/dwd_Newton_order_detail.sh ${date}
