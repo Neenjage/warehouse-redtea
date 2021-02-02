@@ -1,0 +1,5 @@
+type=command
+retries=999
+date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
+dependencies=ods_Einstein_order_alipay_rel,ods_Einstein_payment_alipay_config,ods_Einstein_order_wechat_rel,ods_Einstein_payment_wechat_config
+command=sh /home/ops/warehouse-redtea/dwd/Einstein/dwd_Einstein_order_pay_account_detail.sh ${date}

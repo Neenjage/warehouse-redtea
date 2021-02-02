@@ -46,6 +46,10 @@ CREATE TABLE dws.dws_redtea_order_tmp
 ENGINE = MergeTree
 ORDER BY order_id AS
 SELECT
+  total3.*,
+  pay_account.account
+FROM
+(SELECT
     total2.*,
     cdr.total_usage AS total_usage,
     if(total2.order_status = 'OBSOLETE' and cdr.total_usage is null,0,
@@ -307,7 +311,9 @@ LEFT JOIN
     FROM dwd.dwd_Bumblebee_imsi_transaction_cdr_raw AS cdr_raw
     WHERE cdr_raw.transaction_id != -1
     GROUP BY cdr_raw.transaction_id
-) AS cdr ON total2.transaction_id = cdr.transaction_id;
+) AS cdr ON total2.transaction_id = cdr.transaction_id) as total3
+left join dwd.dwd_Einstein_order_pay_account_detail pay_account
+on total3.order_id = toString(pay_account.order_id) and toString(total3.payment_method_id) = toString(pay_account.pay_method_id);
 
 drop table if exists dws.dws_redtea_order;
 

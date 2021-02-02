@@ -8,6 +8,7 @@ CREATE TABLE if not exists ads.ads_Finance_overseas_report
     id UInt8,
     company String,
     order_month Nullable(String),
+    account Nullable(String),
     other_income Nullable(Float64),
     other_fee Nullable(Float64),
     bank_income Nullable(Float64),
@@ -26,6 +27,7 @@ SELECT
     id,
     company,
     order_month,
+    account,
     toDecimal64(other_income1,2) as other_income,
     toDecimal64(other_fee1,2) as other_fee,
     toDecimal64(bank_income,2) as bank_income,
@@ -37,12 +39,13 @@ select
   0 as id,
   '合计' as company,
   order_month,
+  account,
   sum(other_income) as other_income1,
   sum(other_fee) as other_fee1,
   sum(other_income - other_fee) as bank_income,
   sum(agent_revenue) as agent_revenue
 from ads.ads_Finance_C_report
-group by order_month
+group by order_month,account
 
 union all
 
@@ -50,10 +53,40 @@ select
   1 as id,
   company,
   order_month,
+  account,
   sum(other_income) as other_income1,
   sum(other_fee) as other_fee1,
   sum(other_income - other_fee) as bank_income,
   sum(agent_revenue) as agent_revenue
 from ads.ads_Finance_C_report
-group by order_month,company) t;
+group by order_month,company,account
+
+union all
+
+select
+  1 as id,
+  company,
+  order_month,
+  '合计' as account,
+  sum(other_income) as other_income1,
+  sum(other_fee) as other_fee1,
+  sum(other_income - other_fee) as bank_income,
+  sum(agent_revenue) as agent_revenue
+from ads.ads_Finance_C_report
+group by order_month,company
+
+union all
+
+select
+  1 as id,
+  '合计' as company,
+  order_month,
+  '合计' as account,
+  sum(other_income) as other_income1,
+  sum(other_fee) as other_fee1,
+  sum(other_income - other_fee) as bank_income,
+  sum(agent_revenue) as agent_revenue
+from ads.ads_Finance_C_report
+group by order_month
+) t;
 "
