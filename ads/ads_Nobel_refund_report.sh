@@ -20,7 +20,11 @@ SELECT
            else '普通套餐'
       end as package,
       toStartOfDay(create_time) as order_time,
-      if(source_type='0','Web',if(source_type='2001','Android',if(source_type='3001','ios','MreSIM'))) as source,
+      if(source_type='0','Web',
+        if(source_type='2001','Android',
+        if(source_type='3001','redteago',
+        if(source_type='3002','eSIM data',
+        if(source_type='3003','IOS_IPAD_APP_INNER','MreSIM'))))) as source,
       if(new_user_order_flag = 1,'新用户订单','留存用户订单') as new_user_order,
       if(user_first_order_flag = 1,'首次购买订单','二次及以上订单') as user_first_order,
       location_name,
@@ -45,7 +49,7 @@ GROUP BY
            else '普通套餐'
       end as package,
       toStartOfDay(create_time) as order_time,
-      if(source_type='0','Web',if(source_type='2001','Android',if(source_type='3001','ios','MreSIM'))) as source,
+      source,
       if(new_user_order_flag = 1,'新用户订单','留存用户订单') as new_user_order,
       if(user_first_order_flag = 1,'首次购买订单','二次及以上订单') as user_first_order,
       location_name,
@@ -90,11 +94,16 @@ FROM
 ) AS t2
 ,
 (
-    SELECT if(source_type = '0', 'Web', if(source_type = '2001', 'Android', if(source_type = '3001', 'ios', 'MreSIM'))) AS source
+    SELECT
+    if(source_type='0','Web',
+      if(source_type='2001','Android',
+      if(source_type='3001','redteago',
+      if(source_type='3002','eSIM data',
+      if(source_type='3003','IOS_IPAD_APP_INNER','MreSIM'))))) as source
     FROM dws.dws_Nobel_order
     WHERE create_time > '2020-02-22 23:59:59'
        AND order_price >= 10000
-    GROUP BY if(source_type = '0', 'Web', if(source_type = '2001', 'Android', if(source_type = '3001', 'ios', 'MreSIM')))
+    GROUP BY source
 ) AS t3
 ,
 (
