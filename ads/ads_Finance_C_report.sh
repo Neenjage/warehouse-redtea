@@ -50,105 +50,200 @@ t1.account,
 if(t2.wechat_income is null,0,t2.wechat_income) as wechat_income,
 if(t2.wechat_fee is null,0,t2.wechat_fee) as wechat_fee
 from
-(SELECT
-t.company,
-t.order_month,
-t.account
-from
-(select
-multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
-        agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
-        agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
-        agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
-        agent_id = 6,'努比亚技术有限公司【nubia-JL】',
-        agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
-        agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
-        agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
-        '海信-Hisense') as company,
-toYYYYMM(addHours(end_time,8)) as order_month,
-multiIf(account = '1320939401','上海红茶网络科技有限公司',
-        account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
-        account = '1605063756','深圳红茶移动科技有限公司',
-        account = '1501257801','深圳杰睿联科技有限公司',
-        account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
-        'REDTEA MOBILE PTE. LTD.') as account
-FROM
-dws.dws_redtea_order drot
-where  source = 'Einstein'
-and order_status not in ('REFUNDED','REFUNDING','RESERVED')
-and invalid_time = '2105-12-31 23:59:59'
-and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
-and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
-and order_CNYamount > 0.1) t
-group by t.company,order_month,account) t1
+(
+    SELECT
+    t.company,
+    t.order_month,
+    t.account
+    from
+    (select
+    multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
+            agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
+            agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
+            agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
+            agent_id = 6,'努比亚技术有限公司【nubia-JL】',
+            agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
+            agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
+            agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
+            '海信-Hisense') as company,
+    toYYYYMM(addHours(payment_time,8)) as order_month,
+    multiIf(account = '1320939401','上海红茶网络科技有限公司',
+            account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
+            account = '1605063756','深圳红茶移动科技有限公司',
+            account = '1501257801','深圳杰睿联科技有限公司',
+            account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
+            'REDTEA MOBILE PTE. LTD.') as account
+    FROM
+    dws.dws_redtea_order drot
+    where  source = 'Einstein'
+    and order_status not in ('RESERVED')
+    and payment_method_id not in (0,-1)
+    and invalid_time = '2105-12-31 23:59:59'
+    and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+    and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
+    and order_CNYamount > 0.1) t
+    group by t.company,order_month,account) t1
 left join
-(SELECT
-  multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
-          agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
-          agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
-          agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
-          agent_id = 6,'努比亚技术有限公司【nubia-JL】',
-          agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
-          agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
-        agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
-        '海信-Hisense') as company,
-  toYYYYMM(addHours(end_time,8)) as order_month,
-  multiIf(account = '1320939401','上海红茶网络科技有限公司',
-        account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
-        account = '1605063756','深圳红茶移动科技有限公司',
-        account = '1501257801','深圳杰睿联科技有限公司',
-        account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
-        'REDTEA MOBILE PTE. LTD.') as account,
-  sum(order_CNYamount) as wechat_income,
-  sum(transation_fee) as wechat_fee
-FROM
-dws.dws_redtea_order drot
-where  source = 'Einstein'
-and order_status not in ('REFUNDED','REFUNDING','RESERVED')
-and invalid_time = '2105-12-31 23:59:59'
-and account != 'REDTEA MOBILE PTE. LTD.'
-and order_CNYamount > 0.1
-and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
-and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
-group by
- company,
- order_month,
- account) t2
+    (
+
+    SELECT
+       t2_tmp_sales.company,
+       t2_tmp_sales.order_month,
+       t2_tmp_sales.account,
+       (t2_tmp_sales.wechat_income-t2_tmp_refund.wechat_refund) as wechat_income,
+       (t2_tmp_sales.wechat_fee-t2_tmp_refund.wechat_refund_fee) as wechat_fee
+    FROM
+        (SELECT
+          multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
+                  agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
+                  agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
+                  agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
+                  agent_id = 6,'努比亚技术有限公司【nubia-JL】',
+                  agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
+                  agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
+                agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
+                '海信-Hisense') as company,
+          toYYYYMM(addHours(payment_time,8)) as order_month,
+          multiIf(account = '1320939401','上海红茶网络科技有限公司',
+                account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
+                account = '1605063756','深圳红茶移动科技有限公司',
+                account = '1501257801','深圳杰睿联科技有限公司',
+                account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
+                'REDTEA MOBILE PTE. LTD.') as account,
+          sum(order_CNYamount) as wechat_income,
+          sum(transation_fee) as wechat_fee
+        FROM
+        dws.dws_redtea_order drot
+        where  source = 'Einstein'
+        and order_status not in ('RESERVED')
+        and invalid_time = '2105-12-31 23:59:59'
+        and payment_method_id not in (0,-1)
+        and account != 'REDTEA MOBILE PTE. LTD.'
+        and order_CNYamount > 0.1
+        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
+        group by
+         company,
+         order_month,
+         account)  as t2_tmp_sales
+        left join
+        (SELECT
+          multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
+                  agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
+                  agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
+                  agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
+                  agent_id = 6,'努比亚技术有限公司【nubia-JL】',
+                  agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
+                  agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
+                agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
+                '海信-Hisense') as company,
+          toYYYYMM(addHours(payment_time,8)) as order_month,
+          multiIf(account = '1320939401','上海红茶网络科技有限公司',
+                account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
+                account = '1605063756','深圳红茶移动科技有限公司',
+                account = '1501257801','深圳杰睿联科技有限公司',
+                account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
+                'REDTEA MOBILE PTE. LTD.') as account,
+          sum(order_CNYamount) as wechat_refund,
+          sum(transation_fee) as wechat_refund_fee
+        FROM
+        dws.dws_redtea_order drot
+        where  source = 'Einstein'
+        and order_status in ('REFUNDED')
+        and invalid_time = '2105-12-31 23:59:59'
+        and payment_method_id not in (0,-1)
+        and account != 'REDTEA MOBILE PTE. LTD.'
+        and order_CNYamount > 0.1
+        and addHours(refund_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(refund_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
+        group by
+         company,
+         order_month,
+         account)  as t2_tmp_refund
+        on t2_tmp_sales.company = t2_tmp_refund.company
+        and t2_tmp_sales.order_month = t2_tmp_refund.order_month
+        and t2_tmp_sales.account = t2_tmp_refund.account
+
+     ) t2
 on t1.company = t2.company and t1.order_month = t2.order_month and t1.account = t2.account) t3
 left join
 (
-SELECT
-  multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
-          agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
-          agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
-          agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
-          agent_id = 6,'努比亚技术有限公司【nubia-JL】',
-          agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
-          agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
-        agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
-        '海信-Hisense') as company,
-  toYYYYMM(addHours(end_time,8)) as order_month,
-  multiIf(account = '1320939401','上海红茶网络科技有限公司',
-        account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
-        account = '1605063756','深圳红茶移动科技有限公司',
-        account = '1501257801','深圳杰睿联科技有限公司',
-        account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
-        'REDTEA MOBILE PTE. LTD.') as account,
-  sum(order_CNYamount) as other_income,
-  sum(transation_fee) as other_fee
-FROM
-dws.dws_redtea_order drot
-where  source = 'Einstein'
-and order_status not in ('REFUNDED','REFUNDING','RESERVED')
-and invalid_time = '2105-12-31 23:59:59'
-and account = 'REDTEA MOBILE PTE. LTD.'
-and order_CNYamount > 0.1
-and addHours(end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
-and addHours(end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
-group by
- company,
- order_month,
- account
+
+   SELECT
+       t4_tmp_sales.company,
+       t4_tmp_sales.order_month,
+       t4_tmp_sales.account,
+       (t4_tmp_sales.other_income-t4_tmp_refund.other_refund) as other_income,
+       (t4_tmp_sales.other_fee-t4_tmp_refund.other_refund_fee) as other_fee
+   from
+        (SELECT
+          multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
+                  agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
+                  agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
+                  agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
+                  agent_id = 6,'努比亚技术有限公司【nubia-JL】',
+                  agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
+                  agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
+                agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
+                '海信-Hisense') as company,
+          toYYYYMM(addHours(payment_time,8)) as order_month,
+          multiIf(account = '1320939401','上海红茶网络科技有限公司',
+                account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
+                account = '1605063756','深圳红茶移动科技有限公司',
+                account = '1501257801','深圳杰睿联科技有限公司',
+                account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
+                'REDTEA MOBILE PTE. LTD.') as account,
+          sum(order_CNYamount) as other_income,
+          sum(transation_fee) as other_fee
+        FROM
+        dws.dws_redtea_order drot
+        where  source = 'Einstein'
+        and order_status not in ('RESERVED')
+        and invalid_time = '2105-12-31 23:59:59'
+        and account = 'REDTEA MOBILE PTE. LTD.'
+        and order_CNYamount > 0.1
+        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(payment_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
+        group by
+         company,
+         order_month,
+         account) as t4_tmp_sales
+         left join
+         (SELECT
+          multiIf(agent_id = 1 or agent_id = 14,'维沃通信科技有限公司【vivo-RT】',
+                  agent_id = 4, '北京神奇工场科技有限公司【Zuk(联想)-RT】',
+                  agent_id = 9, '东莞市讯怡电子科技有限公司【OPPO-JL】',
+                  agent_id = 11,'深圳市万普拉斯科技有限公司【One Plus-JL】',
+                  agent_id = 6,'努比亚技术有限公司【nubia-JL】',
+                  agent_id = 5 and brand = 'Nokia','HMD  Global  Oy【Nokia-JL】',
+                  agent_id = 5 and brand = 'SUGAR','深圳市糖果智能通讯有限公司【糖果-JL】',
+                agent_id = 5 and brand in ('Smartisan','SMARTISAN'),'SMARTISAN(锤子)',
+                '海信-Hisense') as company,
+          toYYYYMM(addHours(payment_time,8)) as order_month,
+          multiIf(account = '1320939401','上海红茶网络科技有限公司',
+                account = 'pay_redteasz@redteamobile.com','深圳红茶移动科技有限公司',
+                account = '1605063756','深圳红茶移动科技有限公司',
+                account = '1501257801','深圳杰睿联科技有限公司',
+                account = 'globalpay_sg@redteamobile.com','REDTEA MOBILE PTE. LTD.',
+                'REDTEA MOBILE PTE. LTD.') as account,
+          sum(order_CNYamount) as other_refund,
+          sum(transation_fee) as other_refund_fee
+        FROM
+        dws.dws_redtea_order drot
+        where  source = 'Einstein'
+        and order_status in ('REFUNDED')
+        and invalid_time = '2105-12-31 23:59:59'
+        and account = 'REDTEA MOBILE PTE. LTD.'
+        and order_CNYamount > 0.1
+        and addHours(refund_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(refund_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
+        group by
+         company,
+         order_month,
+         account) as t4_tmp_refund
+         on t4_tmp_sales.company= t4_tmp_refund.company
+         and t4_tmp_sales.order_month= t4_tmp_refund.order_month
+         and t4_tmp_sales.account= t4_tmp_refund.account
 ) t4
 on t3.company = t4.company and t3.order_month = t4.order_month and t3.account = t4.account) t5
 left join
@@ -325,5 +420,5 @@ from
 on t.company = t1.company and t.order_month = t1.refund_month and t.account = t1.account) t2
 left join
 dws.dws_Nobel_wallet wallet on t2.order_month = wallet.transaction_month) total
-order by total.order_month
+order by total.order_month;
 "

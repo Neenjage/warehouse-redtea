@@ -139,6 +139,8 @@ FROM
                     t2.update_time,
                     t2.purchased_ip,
                     t2.order_address,
+                    t2.payment_time,
+                    t2.refund_time,
                     t2.effective_time,
                     t2.invalid_time,
                     t2.transaction_code,
@@ -189,6 +191,8 @@ FROM
                             order_detail.update_time,
                             order_detail.order_ip AS purchased_ip,
                             order_detail.order_address,
+                            order_detail.payment_time,
+                            order_detail.refund_time,
                             order_detail.effective_time,
                             order_detail.invalid_time
                         FROM dwd.dwd_Einstein_orders_detail AS order_detail
@@ -257,6 +261,8 @@ FROM
                         order_detail.last_update_time AS update_time,
                         order_detail.ip AS purchased_ip,
                         'unknown' AS order_address,
+                        order_detail.payment_time,
+                        null as refund_time,
                         order_detail.effective_time,
                         order_detail.invalid_time,
                         order_detail.transaction_code

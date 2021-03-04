@@ -2,6 +2,12 @@
 
 source /home/ops/warehouse-redtea/config/config.sh
 
+import_time=`date +%F`
+
+if [ -n "$1" ];then
+  import_time=$1
+fi
+
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 CREATE TABLE if not exists ads.ads_Finance_churchyard_cost_report
 (
@@ -16,7 +22,7 @@ ENGINE = MergeTree
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
-TRUNCATE TABLE ads.ads_Finance_churchyard_cost_report;
+ALTER TABLE ads.ads_Finance_churchyard_cost_report delete where order_month = toString(toYYYYMM(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))));
 
 INSERT INTO table ads.ads_Finance_churchyard_cost_report
 SELECT
@@ -66,8 +72,8 @@ FROM
     toDecimal64(sum(dro.total_cost),2) as all_cost
   FROM
   dws.dws_redtea_order dro
-  where addHours(dro.end_time,8) >= '2020-01-01 00:00:00'
-  and addHours(dro.end_time,8) < '2021-01-01 00:00:00'
+  where addHours(dro.end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+  and addHours(dro.end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
   and data_plan_name  like '%国内%'
   and carrier_id != 0 and carrier_name is not null
   and total_cost > 0
@@ -83,8 +89,8 @@ FROM
     toDecimal64(sum(dro.total_cost),2) as all_cost
   FROM
   dws.dws_redtea_order dro
-  where addHours(dro.end_time,8) >= '2020-01-01 00:00:00'
-  and addHours(dro.end_time,8) < '2021-01-01 00:00:00'
+  where addHours(dro.end_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+  and addHours(dro.end_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))
   and data_plan_name  like '%国内%'
   and carrier_id != 0
   and total_cost > 0
