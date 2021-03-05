@@ -8,6 +8,7 @@ if [ -n "$1" ];then
   import_time=$1
 fi
 
+#currency 临时表主要是根据订单时间(order_time)确定汇率
 clickhouse-client --user $user --password $password --multiquery --multiline -q"
 drop table if exists dwd.dwd_Einstein_orders_detail_tmp;
 
@@ -198,7 +199,7 @@ FROM
                 toDateTime(concat(toString(import_time), ' 00:00:00')) AS import_time
             FROM dim.dim_Bumblebee_currency_rate
         ) AS currency_rate ON currency_name.name = currency_rate.name
-    ) AS currency ON (t7.currency_id = currency.id) AND (toStartOfDay(addHours(t7.payment_time, 8)) = currency.import_time)
+    ) AS currency ON (t7.currency_id = currency.id) AND (toStartOfDay(addHours(t7.order_time, 8)) = currency.import_time)
 ) AS t8
 LEFT JOIN
 (
