@@ -353,7 +353,7 @@ total.company,
 total.order_month,
 total.account,
 toDecimal32(0,3) as wechat_income,
-toDecimal32(overseas_income,3) as other_income,
+toDecimal64(overseas_income,3) as other_income,
 toDecimal32(0,3) as agent_revenue,
 toDecimal32(0,3) as wechat_fee,
 toDecimal32(overseas_fee,3) as other_fee
@@ -381,7 +381,7 @@ from
        when status = 'SUCCESS' and product_type = 'topup_order'
         and payment_method_id not in ('0') then toYYYYMM(addHours(payment_time,8))
        else toYYYYMM(addHours(create_time,8)) end as order_month,
-  sum(total_order_CNYamount) as total_income
+  sum(order_price/currency_CNY_rate/10000) as total_income
   from
   dws.dws_Nobel_order
   where status in ('1','2','3','4','SUCCESS')
@@ -394,7 +394,7 @@ from
        or
        (status in ('1','2','3','4') and product_type = 'order'
         and payment_method_id = '0'
-        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(create_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
         and addHours(create_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00')))
        or
        (status = 'SUCCESS' and product_type = 'topup_order'
@@ -404,7 +404,7 @@ from
        or
        (status = 'SUCCESS' and product_type = 'topup_order'
         and payment_method_id = '0'
-        and addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+        and addHours(create_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
         and addHours(create_time,8) < toDateTime(concat(toString(addMonths(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00'))),1)),' 00:00:00'))))
   group by order_month) t
   left join
@@ -412,9 +412,9 @@ from
     'RedteaGO' as company,
     toYYYYMM(addHours(update_time,8)) as refund_month,
     'REDTEA MOBILE PTE. LTD.' as account,
-    sum(total_order_CNYamount) as refund_amount
+    sum(order_price/currency_CNY_rate/10000) as refund_amount
    from dws.dws_Nobel_order
-   where addHours(payment_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
+   where addHours(update_time,8) >= toDateTime(concat(toString(toStartOfMonth(toDateTime(concat(toString('$import_time'), ' 00:00:00')))),' 00:00:00'))
    and status = '3' and payment_method_id != 5
    group by refund_month) t1
 on t.company = t1.company and t.order_month = t1.refund_month and t.account = t1.account) t2
