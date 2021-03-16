@@ -53,6 +53,8 @@ FROM
                     data_plan.currency_id,
                     data_plan.promotion_id,
                     data_plan.data_plan_level,
+                    data_plan.duration as duration,
+                    data_plan.resource_value as resource_value,
                     location.name AS location_name,
                     location.continent AS location_continent,
                     location.remark AS location_remark,
@@ -60,20 +62,22 @@ FROM
                 FROM
                 (
                     SELECT
-                        id,
-                        short_name,
-                        price,
-                        status,
-                        type,
-                        update_time,
-                        data_volume,
-                        expiration_days,
-                        location_id,
-                        currency_id,
-                        promotion_id,
-                        data_plan_level
-                    FROM dim.dim_Einstein_data_plan
-                    WHERE import_time = '$import_time'
+                        dp.id as id,
+                        dp.short_name as short_name,
+                        dp.price as price,
+                        dp.status as status,
+                        dp.type as type,
+                        dp.update_time as update_time,
+                        dp.data_volume as data_volume,
+                        dp.expiration_days as expiration_days,
+                        dp.location_id as location_id,
+                        dp.currency_id as currency_id,
+                        dp.promotion_id as promotion_id,
+                        dp.data_plan_level as data_plan_level,
+                        dp.duration as duration,
+                        ir.resource_value as resource_value
+                    FROM dim.dim_Einstein_data_plan dp
+                    left join (select * from ods.ods_Einstein_i18n_resource where locale_id = 1) ir on dp.name = ir.resource_key
                 ) AS data_plan
                 LEFT JOIN
                 (

@@ -16,6 +16,12 @@ CREATE TABLE dwd.dwd_Einstein_orders_detail_tmp
 ENGINE = MergeTree
 ORDER BY order_id AS
 SELECT
+t9.*,
+if(netless_use.device_id is not null,
+  if(arrayCount(use_time->if(dateDiff('second',use_time,t9.order_time)>=0
+                      and dateDiff('second',use_time,t9.order_time)<=1800,1,0),netless_use.groupArray_use_time) > 0,1,0),0) as netless_order_flag
+from
+(SELECT
     t8.*,
     order_channel.type AS channel_type,
     'Einstein' AS order_source
@@ -66,6 +72,7 @@ FROM
                                 SELECT
                                     orders.id AS order_id,
                                     orders.order_no AS order_no,
+                                    orders.count as count,
                                     orders.device_id AS device_id,
                                     orders.data_plan_id AS data_plan_id,
                                     orders.count AS order_count,
@@ -93,6 +100,7 @@ FROM
                                     SELECT
                                         id,
                                         order_no,
+                                        count,
                                         device_id,
                                         data_plan_id,
                                         count,
@@ -208,7 +216,26 @@ LEFT JOIN
         type
     FROM dim.dim_Einstein_order_channel
     WHERE import_time = '$import_time'
-) AS order_channel ON toInt32(t8.channel_id) = order_channel.id;
+) AS order_channel ON toInt32(t8.channel_id) = order_channel.id) t9
+left join
+(
+SELECT
+  device_id,
+  groupArray(use_time) as groupArray_use_time
+FROM
+(select
+  device_id,
+  use_time
+from
+ods.ods_Einstein_netless_roaming_iccid_usage
+union all
+select
+  device_id,
+  use_time
+from
+ods.ods_Einstein_netless_roaming_imsi_usage)
+group by device_id) as netless_use
+on t9.device_id = netless_use.device_id;
 
 
 drop table if exists dwd.dwd_Einstein_orders_detail;

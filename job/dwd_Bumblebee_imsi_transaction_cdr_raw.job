@@ -1,5 +1,5 @@
 type=command
 retries=999
 date=${azkaban.flow.start.year}-${azkaban.flow.start.month}-${azkaban.flow.start.day}
-dependencies=ods_Bumblebee_imsi_transaction_cdr_raw
+dependencies=ods_Bumblebee_imsi_transaction_cdr_raw,dim_Bumblebee_prepaid_resource_price
 command=sh /home/ops/warehouse-redtea/dwd/Bumblebee/dwd_Bumblebee_imsi_transaction_cdr_raw.sh ${date}
