@@ -18,3 +18,8 @@ default default123456redtea  default用户
 #superset 连接mysql
 
 root   redtea123456
+
+
+#azkaban
+
+azkaban azkaban
